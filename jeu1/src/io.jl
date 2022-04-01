@@ -6,12 +6,13 @@ import GR
 
 function test()
     n=0
-    m=0
+    p=0
     y=[]
     y1=[]
     y2=[]
-    n,m,y,y1,y2 = readInputFile("../data/instanceTest.txt")
-    displayGrid(n,m,y)
+    n,p,y,y1,y2 = readInputFile("../data/instanceTest.txt")
+    displayGrid(n,p,y)
+    include("resolution.jl")
 end
 
 """
@@ -93,6 +94,7 @@ function displayGrid(n::Int64, m::Int64, y::Vector{})
     end
     println("--")
 end
+
 
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder

@@ -8,10 +8,39 @@ TOL = 0.00001
 """
 Solve an instance with CPLEX
 """
-function cplexSolve()
+function cplexSolve(n::Int64, p::Int64, y1::Vector{}, y2::Vector{})
 
+    nbRec = size(y1,1)
     # Create the model
     m = Model(with_optimizer(CPLEX.Optimizer))
+
+    ########### Variables ########### 
+
+    # x[i, k] = 1 if cell i is in rectangle k
+    @variable(mp, x[1:n*p, 1:nbRec], Bin)
+
+
+    ########### constraints ###########
+    # 1 - Set the fixed value in the grid
+    for i in 1:nbRec
+        @constraint(m, x[y2[i],i] == 1)
+    end
+
+    # 2 - a case belong to only on rectangle
+    @constraint(m, [i in 1:n*p], sum(x[i,k] for k in y1)==1)
+
+    # 3 - nb of case of one rectangle is respected and 
+    @constraint(m, [k in 1:nbRec], sum(x[i,k] for k in y1)==1)
+
+    # 4 - rectangles with a number odd of case are juste lines
+    @constraint(m, [k in 1:nbRec; rem(y1[k],2)==1], [i in 1:n*p], x[i,k]+x[i+1,k]+x[i+p,k] <= 2)
+    
+
+    # 5 - cases of a same rectangle are grouped (a case i of rect k have a case j also from rect k next to it)
+    @constraint(m, [k in 1:nbRec], [i in 1:n*p; x[i,k]=1], x[i+1,k]+x[i-1,k]+x[i+p,k]+x[i-p,k] >= 1)
+
+    # 6 - 
+    @constraint(m, [k in 1:nbRec; rem(y1[k],2)==0 && y1[k]!=2], [i in 1:n*p; x[i,k]=1], x[i+1,k]+x[i-1,k]+x[i+p,k]+x[i-p,k] >= 2)
 
     # TODO
     println("In file resolution.jl, in method cplexSolve(), TODO: fix input and output, define the model")
@@ -26,7 +55,6 @@ function cplexSolve()
     # 1 - true if an optimum is found
     # 2 - the resolution time
     return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start
-    
 end
 
 """
