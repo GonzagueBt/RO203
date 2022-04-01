@@ -4,6 +4,16 @@ using JuMP
 using Plots
 import GR
 
+function test()
+    n=0
+    m=0
+    y=[]
+    y1=[]
+    y2=[]
+    n,m,y,y1,y2 = readInputFile("../data/instanceTest.txt")
+    displayGrid(n,m,y)
+end
+
 """
 Read an instance from an input file
 
@@ -18,27 +28,71 @@ function readInputFile(inputFile::String)
     data = readlines(datafile)
     close(datafile)
     n = size(data,1)
+    m= size(split(data[1]," "),1)
+    y = []
     y1 = []
     y2 = []
-    nbRec = 0
     # For each line of the input file
     for i in 1:n
         line = data[i]
         values = split(line, " ")
-        m=size(values,1)
         for j in 1:m 
-            if values[j]!= "0"
-                append!(y1, parse(Int64, values[j]))
+            v = parse(Int64, values[j])
+            if v!= 0
+                append!(y1, v)
                 append!(y2, j+((i-1)*m))
-                nbRec+=1
+            end
+            append!(y, v)
+        end
+    end
+    return n,m, y, y1,y2
+    #renvoie la taille n de la grille, la liste des valeurs des rectangles y1, l'index de ses rectangles dans y2 (au meme index)
+end
+
+
+"""
+Display a grid represented by a 2-dimensional array
+
+Argument:
+- t: array of size n*n with values in [0, n] (0 if the cell is empty)
+"""
+function displayGrid(n::Int64, m::Int64, y::Vector{})
+    print("-")
+    for i in 1:m-1
+        print("--")
+    end
+    println("--")
+    print("|")
+    for i in 1:size(y,1)
+        if rem(i,m)==0
+            if y[i]!=0
+                println(y[i],"|")
+            else 
+                println(" |")
+            end
+            if i != n*m
+                print("|")
+                for i in 1:m-1
+                    print("  ")
+                end
+                println(" |")
+                print("|")
+            else
+                print("-")    
+            end
+        else
+            if y[i]!=0
+                print(y[i]," ")
+            else
+                print("  ")
             end
         end
     end
-    return n, y1,y2, nbRec
-    #renvoie la taille n de la grille, la liste des valeurs des rectangles y1, l'index de ses rectangles dans y2 (au meme index), 
-    #et le nombre de rectangle
+    for i in 1:m-1
+        print("--")
+    end
+    println("--")
 end
-
 
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder
