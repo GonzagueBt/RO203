@@ -17,15 +17,26 @@ function readInputFile(inputFile::String)
 
     data = readlines(datafile)
     close(datafile)
-
+    n = size(data,1)
+    y1 = []
+    y2 = []
+    nbRec = 0
     # For each line of the input file
-    for line in data
-
-        # TODO
-        println("In file io.jl, in method readInputFile(), TODO: read a line of the input file")
-
+    for i in 1:n
+        line = data[i]
+        values = split(line, " ")
+        m=size(values,1)
+        for j in 1:m 
+            if values[j]!= "0"
+                append!(y1, parse(Int64, values[j]))
+                append!(y2, j+((i-1)*m))
+                nbRec+=1
+            end
+        end
     end
-
+    return n, y1,y2, nbRec
+    #renvoie la taille n de la grille, la liste des valeurs des rectangles y1, l'index de ses rectangles dans y2 (au meme index), 
+    #et le nombre de rectangle
 end
 
 
