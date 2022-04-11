@@ -9,7 +9,6 @@ TOL = 0.00001
 Solve an instance with CPLEX
 """
 function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
-
     n = size(y,1)
     p = size(k,1)
     nbA = size(a,1)
@@ -39,47 +38,40 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     @constraint(m, sum(x[i,j] for i in 1:n for j in 1:p)==nbA)
     
     # 4 - each tree have a tent next to it
-    #constraint(m, [i in 1:nbA , a[i,1]>1 && a[i,1]<n && a[i,2]>1 && a[i,2]<p], x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
-        # each side
-    #constraint(m, [i in 1:size(a,1); a[i,1]==1 && a[i,2]>1 && a[i,2]<p], x[a[i,1]+1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
-    #constraint(m, [i in 1:size(a,1); a[i,1]==n && a[i,2]>1 && a[i,2]<p], x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
-    #constraint(m, [i in 1:size(a,1); a[i,1]>1 && a[i,1]<n && a[i,2]==1], x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] >=1)
-    #constraint(m, [i in 1:size(a,1); a[i,1]>1 && a[i,1]<n && a[i,2]==p], x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]-1] >=1)
-        # each angles
-
-
     for i in 1:nbA
-        #if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]>=2 && a[i,2]<=p-1
-        #    constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]>=2 && a[i,2]<=p-1
+            @constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
+        end
         #each sides
         if a[i,1]==1 && a[i,2]>=2 && a[i,2]<=p-1
-            constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
-        elseif a[i,1]==n && a[i,2]>=2 && a[i,2]<=p-1
-            constraint(m, x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
-
-        #elseif a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==1
-        #    constraint(m, x[a[i,1]+1,1] + x[a[i,1]-1,1] + x[a[i,1],2] >=1)
-        #elseif a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==p
-        #    constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]-1] >=1)
+            @constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]>=2 && a[i,2]<=p-1
+            @constraint(m, x[n-1,a[i,2]] + x[n,a[i,2]+1] + x[n,a[i,2]-1]>=1)
+        end
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==1
+            @constraint(m, x[a[i,1]+1,1] + x[a[i,1]-1,1] + x[a[i,1],2] >=1)
+        end
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==p
+            @constraint(m, x[a[i,1]+1,p] + x[a[i,1]-1,p] + x[a[i,1],p-1] >=1)
+        end
         #each angles
-        elseif a[i,1]==1 && a[i,2]==1
-            constraint(m, x[2,1] + x[1,2]>=1)
-        elseif a[i,1]==1 && a[i,2]==p
-            constraint(m, x[2,p] + x[1,p-1]>=1)
-        elseif a[i,1]==n && a[i,2]==p
-            constraint(m, x[n-1,p] + x[n,p-1]>=1)
-        #elseif a[i,1]==n && a[i,2]==1
-        #    constraint(m, x[n-1,1] + x[n,2]>=1)
+        if a[i,1]==1 && a[i,2]==1
+            @constraint(m, x[2,1] + x[1,2]>=1)
+        end
+        if a[i,1]==1 && a[i,2]==p
+            @constraint(m, x[2,p] + x[1,p-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]==p
+            @constraint(m, x[n-1,p] + x[n,p-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]==1
+            @constraint(m, x[n-1,1] + x[n,2] >=1)
         end
     end
-    #constraint(m, [i in 1:size(a,1); a[i,1]==1 && a[i,2]==p], x[a[i,1]+1,a[i,2]] + x[a[i,1],a[i,2]-1]>=1)
-    #constraint(m, [i in 1:size(a,1); a[i,1]==n && a[i,2]==p], x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]-1]>=1)
-    #constraint(m, [i in 1:size(a,1); a[i,1]==n && a[i,2]==1], x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1]>=1)
 
     # 2 tents can not be next to each other or in diag
-    #@constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j]<=1) ########
     @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j]<=1)
-    #@constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j-1]<=1) ########
     @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j+1]<=1)
     @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j-1]<=1)
     @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j+1]<=1)
@@ -118,9 +110,7 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     @constraint(m, x[n,p] + x[n,p-1] + x[n-1,p-1]<=1)
     @constraint(m, x[n,p] + x[n-1,p] + x[n-1,p-1]<=1)
 
-    # TODO
-    println("In file resolution.jl, in method cplexSolve(), TODO: fix input and output, define the model")
-
+    @objective(m, Min, 1)
     # Start a chronometer
     start = time()
 
@@ -131,6 +121,7 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
+    # 3 - the binary variable x
 
     return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, tps, x
 end
