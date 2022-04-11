@@ -8,7 +8,7 @@ TOL = 0.00001
 """
 Solve an instance with CPLEX
 """
-function cplexSolve(n::Int64, p::Int64, y1::Vector{}, y2::Vector{})
+function cplexSolve(n::Int64, p::Int64, y1::Array{}, y2::Array{})
 
     nbRec = size(y1,1)
     # Create the model

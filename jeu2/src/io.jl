@@ -4,6 +4,13 @@ using JuMP
 using Plots
 import GR
 
+function test()
+    n,y,t = readInputFile("../data/instanceTest.txt")
+    println(t)
+    displayGrid(n,y)
+    #include("resolution.jl")
+end
+
 """
 Read an instance from an input file
 
@@ -17,15 +24,68 @@ function readInputFile(inputFile::String)
 
     data = readlines(datafile)
     close(datafile)
+    
+    n = length(split(data[1], " "))
+    t = Array{Int64}(zeros(n,n))
+    y = []
+
+    lineNb = 1
 
     # For each line of the input file
     for line in data
 
-        # TODO
-        println("In file io.jl, in method readInputFile(), TODO: read a line of the input file")
-
+        lineSplit = split(line, " ")
+        for colNb in 1:n
+            a = parse(Int64, lineSplit[colNb])
+            append!(y,a)
+            t[lineNb, colNb] = a
+        end
+        lineNb += 1
     end
+    return n,y,t
 
+end
+
+"""
+Argument:
+- t: array of size n*n with values in [0, n] (0 if the cell is empty)
+"""
+function displayGrid(n::Int64, t::Vector{})
+    print("-")
+    for i in 1:n-1
+        print("--")
+    end
+    println("--")
+    print("|")
+    for i in 1:size(t,1)
+        if rem(i,n)==0
+            if t[i]!=0
+                println(t[i],"|")
+            else 
+                println(" |")
+            end
+            if i != n*n
+                print("|")
+                for i in 1:n-1
+                    print("  ")
+                end
+                println(" |")
+                print("|")
+            else
+                print("-")    
+            end
+        else
+            if t[i]!=0
+                print(t[i]," ")
+            else
+                print("  ")
+            end
+        end
+    end
+    for i in 1:n-1
+        print("--")
+    end
+    println("--")
 end
 
 
