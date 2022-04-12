@@ -8,53 +8,49 @@ TOL = 0.00001
 """
 Solve an instance with CPLEX
 """
-function cplexSolve(n::Int64, p::Int64, y1::Array{}, y2::Array{})
+function cplexSolve(sizeR::Int64, t::Array{})
 
-    nbRec = size(y1,1)
     # Create the model
-    m = Model(with_optimizer(CPLEX.Optimizer))
+    m = Model(CPLEX.Optimizer)
 
     ########### Variables ########### 
+    n = size(t,1)
+    p = size(t,2)
+    nbR = round(Int64,n*p/sizeR)
+    # x[i,j,k] = 1 if case i,j is in region k
+    @variable(m, x[1:n, 1:p, 1:nbR], Bin)
+    # y[i,j] = 1 if there exist an arc between case i and j
+    @variable(m, y[1:n*p,1:n*p], Bin)
 
-    # x[i, k] = 1 if cell i is in rectangle k
-    @variable(mp, x[1:n*p, 1:nbRec], Bin)
+    ########## constraints ##########
 
+    # 1 - each region containte sizeR case
+    @constraint(m, [k in 1:nbR], sum(x[i,j,k] for i in 1:n for j in 1:p)==sizeR)
 
-    ########### constraints ###########
-    # 1 - Set the fixed value in the grid
-    for i in 1:nbRec
-        @constraint(m, x[y2[i],i] == 1)
-    end
+    # 2 - each case belong to only one region
+    @constraint(m, [i in 1:n, j in 1:p], sum(x[i,j,k] for k in 1:nbR)==1)
 
-    # 2 - a case belong to only on rectangle
-    @constraint(m, [i in 1:n*p], sum(x[i,k] for k in y1)==1)
-
-    # 3 - nb of case of one rectangle is respected and 
-    @constraint(m, [k in 1:nbRec], sum(x[i,k] for k in y1)==1)
-
-    # 4 - rectangles with a number odd of case are juste lines
-    @constraint(m, [k in 1:nbRec; rem(y1[k],2)==1], [i in 1:n*p], x[i,k]+x[i+1,k]+x[i+p,k] <= 2)
-    
-
-    # 5 - cases of a same rectangle are grouped (a case i of rect k have a case j also from rect k next to it)
-    @constraint(m, [k in 1:nbRec], [i in 1:n*p; x[i,k]=1], x[i+1,k]+x[i-1,k]+x[i+p,k]+x[i-p,k] >= 1)
-
-    # 6 - 
-    @constraint(m, [k in 1:nbRec; rem(y1[k],2)==0 && y1[k]!=2], [i in 1:n*p; x[i,k]=1], x[i+1,k]+x[i-1,k]+x[i+p,k]+x[i-p,k] >= 2)
-
-    # TODO
-    println("In file resolution.jl, in method cplexSolve(), TODO: fix input and output, define the model")
-
+    # 3 the number of palisade of a case is equal to the indicated value
+    @constraint(m, [i in 2:n-1, j in 2:p-1; t[i,j]!=0], y[i*(n-1)+j,i*(n-1)+j+1]+y[i*(n-1)+j,i*(n-1)+j-1]+ y[i*(n)+j,i*(n-1)+j]+y[i*(n+1)+j,i*(n-1)+j]== t[i,j])
     # Start a chronometer
     start = time()
 
     # Solve the model
     optimize!(m)
-
+    for i in 1:n
+        for j in 1:p
+            for k in 1:nbR
+                if JuMP.value(x[i,j,k])==1
+                    print(k)
+                end
+            end
+        end
+        println()
+    end
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
-    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start
+    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start, x,y
 end
 
 """

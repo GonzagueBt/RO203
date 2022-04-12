@@ -5,12 +5,12 @@ using Plots
 import GR
 
 function test()
-    t,y,k,a = readInputFile("../data/instanceTest.txt")
+    t,y,k,a = readInputFile("../data/instanceTest2.txt")
     include("resolution.jl")
     status, time, x = cplexSolve(y,k,a)
     displayGrid(t,y,k)
     displaySolution(y,k,t,x)
-    #return y,k
+    #return a
 end
 
 """

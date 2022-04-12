@@ -5,10 +5,12 @@ using Plots
 import GR
 
 function test()
-    n,y,t = readInputFile("../data/instanceTest.txt")
-    println(t)
-    displayGrid(n,y)
-    #include("resolution.jl")
+    sizeR, t = readInputFile("../data/instanceTest.txt")
+    displayGrid(t)
+    include("resolution.jl")
+    Opt, time, x,y = cplexSolve(sizeR, t)
+    
+    displaySolution(t,y)
 end
 
 """
@@ -24,8 +26,8 @@ function readInputFile(inputFile::String)
 
     data = readlines(datafile)
     close(datafile)
-    
-    n = length(split(data[1], " "))
+    sizeR = 0
+    n = length(split(data[2], " "))
     t = Array{Int64}(zeros(n,n))
     y = []
 
@@ -33,16 +35,18 @@ function readInputFile(inputFile::String)
 
     # For each line of the input file
     for line in data
-
         lineSplit = split(line, " ")
-        for colNb in 1:n
-            a = parse(Int64, lineSplit[colNb])
-            append!(y,a)
-            t[lineNb, colNb] = a
+        if lineNb==1
+            sizeR=parse(Int64, lineSplit[1])
+        else
+            for colNb in 1:n
+                a = parse(Int64, lineSplit[colNb])
+                t[lineNb-1, colNb] = a
+            end
         end
         lineNb += 1
     end
-    return n,y,t
+    return sizeR, t
 
 end
 
@@ -50,45 +54,95 @@ end
 Argument:
 - t: array of size n*n with values in [0, n] (0 if the cell is empty)
 """
-function displayGrid(n::Int64, t::Vector{})
+function displayGrid(y::Array{})
+    n = size(y,2)
+    m = size(y,1)
     print("-")
-    for i in 1:n-1
+    for i in 1:m-1
         print("--")
     end
     println("--")
-    print("|")
-    for i in 1:size(t,1)
-        if rem(i,n)==0
-            if t[i]!=0
-                println(t[i],"|")
-            else 
-                println(" |")
-            end
-            if i != n*n
-                print("|")
-                for i in 1:n-1
-                    print("  ")
-                end
-                println(" |")
-                print("|")
-            else
-                print("-")    
-            end
-        else
-            if t[i]!=0
-                print(t[i]," ")
+
+    for i in 1:n
+        print("|")
+        for j in 1:m-1
+            if y[i,j]!=0
+                print(y[i,j]," ")
             else
                 print("  ")
             end
         end
+        if y[i,m]!=0
+            print(y[i,m])
+        else
+            print(" ")
+        end
+        println("|")
+        if i!=n
+            print("|")
+            for i in 1:m-1
+                print("  ")
+            end
+            println(" |")
+        end
     end
-    for i in 1:n-1
+    for i in 1:m
+        print("--")
+    end
+    println("-")
+end
+
+function displaySolution(y::Array{},x::Array{VariableRef,2})
+    n = size(y,1)
+    m = size(y,2)
+    print("-")
+    for i in 1:m-1
         print("--")
     end
     println("--")
+
+    for i in 1:n
+        print("|")
+        for j in 1:m-1
+            if y[i,j]!=0
+                print(y[i,j])
+            else
+                print(" ")
+            end
+            if JuMP.value(x[i*(n-1)+j,i*(n-1)+j+1]) > TOL
+                print("|")
+            else
+                print(" ")
+            end
+        end
+        if y[i,m]!=0
+            print(y[i,m])
+        else
+            print(" ")
+        end
+        println("|")
+        if i!=n
+            print("|")
+            for j in 1:m-1
+                if JuMP.value(x[i*(n-1)+j,i*(n)+j]) > TOL
+                    print("--")
+                else
+                    print("  ")
+                end
+            end
+            if JuMP.value(x[i*(n-1)+m,i*(n)+m]) > TOL
+                print("-")
+            else
+                print(" ")
+            end
+            println("|")
+        end
+    end
+    for i in 1:m
+        print("--")
+    end
+    println("-")
 end
-
-
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder
 Display one curve for each subfolder of the ../res folder.
