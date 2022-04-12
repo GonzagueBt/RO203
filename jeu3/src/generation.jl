@@ -530,6 +530,9 @@ function generateInstance(n::Int64)
                     end
                 end
             end
+            if (temp2==temp)
+                grid[x][y]=0
+            end        
         end
     end
     
