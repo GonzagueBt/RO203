@@ -28,7 +28,8 @@ function readInputFile(inputFile::String)
     close(datafile)
     sizeR = 0
     n = length(split(data[2], " "))
-    t = Array{Int64}(zeros(n,n))
+    m = length(split(data[2], " "))
+    t = Array{Int64}(zeros(n,m))
     y = []
 
     lineNb = 1
@@ -92,9 +93,9 @@ function displayGrid(y::Array{})
     println("-")
 end
 
-function displaySolution(y::Array{},x::Array{VariableRef,2})
-    n = size(y,1)
-    m = size(y,2)
+function displaySolution(t::Array{},x::Array{VariableRef,2})
+    n = size(t,1)
+    m = size(t,2)
     print("-")
     for i in 1:m-1
         print("--")
@@ -104,19 +105,19 @@ function displaySolution(y::Array{},x::Array{VariableRef,2})
     for i in 1:n
         print("|")
         for j in 1:m-1
-            if y[i,j]!=0
-                print(y[i,j])
+            if t[i,j]!=0
+                print(t[i,j])
             else
                 print(" ")
             end
-            if JuMP.value(x[i*(n-1)+j,i*(n-1)+j+1]) > TOL
+            if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1]) > TOL ||  JuMP.value(x[(i-1)*(m)+j+1, (i-1)*(m)+j]) > TOL
                 print("|")
             else
                 print(" ")
             end
         end
-        if y[i,m]!=0
-            print(y[i,m])
+        if t[i,m]!=0
+            print(t[i,m])
         else
             print(" ")
         end
@@ -124,13 +125,13 @@ function displaySolution(y::Array{},x::Array{VariableRef,2})
         if i!=n
             print("|")
             for j in 1:m-1
-                if JuMP.value(x[i*(n-1)+j,i*(n)+j]) > TOL
+                if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j]) > TOL || JuMP.value(x[(i)*(n)+j,(i-1)*(n)+j]) > TOL
                     print("--")
                 else
                     print("  ")
                 end
             end
-            if JuMP.value(x[i*(n-1)+m,i*(n)+m]) > TOL
+            if JuMP.value(x[(i-1)*(n)+m,i*(n)+m]) > TOL || JuMP.value(x[(i)*(n)+m,(i-1)*(n)+m]) > TOL
                 print("-")
             else
                 print(" ")
