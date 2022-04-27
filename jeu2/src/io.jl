@@ -5,11 +5,13 @@ using Plots
 import GR
 
 function test()
-    sizeR, t = readInputFile("../data/instanceTest.txt")
+    sizeR, t = readInputFile("../data/instanceTest2.txt")
     displayGrid(t)
     include("resolution.jl")
+    include("heuristic.jl")
+    #heuristicSolve(sizeR, t)
     Opt, time, x,y = cplexSolve(sizeR, t)
-    
+    nbR = 5
     displaySolution(t,y)
 end
 
@@ -27,7 +29,7 @@ function readInputFile(inputFile::String)
     data = readlines(datafile)
     close(datafile)
     sizeR = 0
-    n = length(split(data[2], " "))
+    n = length(data)-1
     m = length(split(data[2], " "))
     t = Array{Int64}(zeros(n,m))
     y = []
@@ -40,7 +42,7 @@ function readInputFile(inputFile::String)
         if lineNb==1
             sizeR=parse(Int64, lineSplit[1])
         else
-            for colNb in 1:n
+            for colNb in 1:m
                 a = parse(Int64, lineSplit[colNb])
                 t[lineNb-1, colNb] = a
             end
@@ -56,10 +58,10 @@ Argument:
 - t: array of size n*n with values in [0, n] (0 if the cell is empty)
 """
 function displayGrid(y::Array{})
-    n = size(y,2)
-    m = size(y,1)
+    n = size(y,1)
+    m = size(y,2)
     print("-")
-    for i in 1:m-1
+    for j in 1:m-1
         print("--")
     end
     println("--")
@@ -81,19 +83,76 @@ function displayGrid(y::Array{})
         println("|")
         if i!=n
             print("|")
-            for i in 1:m-1
+            for j in 1:m-1
                 print("  ")
             end
             println(" |")
         end
     end
-    for i in 1:m
+    for j in 1:m
         print("--")
     end
     println("-")
 end
 
 function displaySolution(t::Array{},x::Array{VariableRef,2})
+    n = size(t,1)
+    m = size(t,2)
+    print("-")
+    for j in 1:m-1
+        print("--")
+    end
+    println("--")
+
+    for i in 1:n
+        print("|")
+        for j in 1:m-1
+            if t[i,j]!=0
+                print(t[i,j])
+            else
+                print(" ")
+            end
+            if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1]) > TOL
+                print("|")
+            else
+                print(" ")
+            end
+        end
+        if t[i,m]!=0
+            print(t[i,m])
+        else
+            print(" ")
+        end
+        println("|")
+        if i!=n
+            print("|")
+            for j in 1:m-1
+                if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j]) > TOL 
+                    print("-")
+                else
+                    print(" ")
+                end
+                if i>=2 && JuMP.value(x[(i-2)*(m)+j,(i-2)*(m)+j+1]) > TOL
+                    print("|")
+                else
+                    print(" ")
+                end
+            end
+            if JuMP.value(x[(i-1)*(n)+m,i*(n)+m]) > TOL 
+                print("-")
+            else
+                print(" ")
+            end
+            println("|")
+        end
+    end
+    for j in 1:m
+        print("--")
+    end
+    println("-")
+end
+
+function displaySolutionBis(t::Array{},x::Array{VariableRef,3}, nbR::Int64)
     n = size(t,1)
     m = size(t,2)
     print("-")
@@ -110,9 +169,15 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
             else
                 print(" ")
             end
-            if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1]) > TOL ||  JuMP.value(x[(i-1)*(m)+j+1, (i-1)*(m)+j]) > TOL
-                print("|")
-            else
+            isPal = false
+            for k in 1:nbR
+                if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1,k]) > TOL 
+                    print("|")
+                    isPal = true
+                    break
+                end
+            end
+            if !isPal
                 print(" ")
             end
         end
@@ -125,15 +190,27 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
         if i!=n
             print("|")
             for j in 1:m-1
-                if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j]) > TOL || JuMP.value(x[(i)*(n)+j,(i-1)*(n)+j]) > TOL
-                    print("--")
-                else
+                isPal = false
+                for k in 1:nbR
+                    if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j,k]) > TOL #|| JuMP.value(x[(i)*(n)+j,(i-1)*(n)+j,k]) > TOL
+                        print("--")
+                        isPal = true
+                        break
+                    end
+                end
+                if !isPal
                     print("  ")
                 end
             end
-            if JuMP.value(x[(i-1)*(n)+m,i*(n)+m]) > TOL || JuMP.value(x[(i)*(n)+m,(i-1)*(n)+m]) > TOL
-                print("-")
-            else
+            isPal = false
+            for k in 1:nbR
+                if JuMP.value(x[(i-1)*(n)+m,i*(n)+m,k]) > TOL #|| JuMP.value(x[(i)*(n)+m,(i-1)*(n)+m,k]) > TOL
+                    print("-")
+                    isPal = true
+                    break
+                end
+            end
+            if !isPal
                 print(" ")
             end
             println("|")
