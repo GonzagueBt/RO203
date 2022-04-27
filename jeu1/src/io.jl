@@ -5,11 +5,14 @@ using Plots
 import GR
 
 function test()
-    t,y = readInputFile("../data/instanceTest.txt")
-    displayGrid(t)
+    t,y,k,a = readInputFile("../data/instanceTest2.txt")
     include("resolution.jl")
-    status, time, t = cplexSolve(size(t,1), size(t,1),y)
-    displayGrid(t)
+    #status, time, x = cplexSolve(y,k,a)
+    #displayGrid(t,y,k)
+    #displaySolution(y,k,t,x)
+    include("resolution.jl")
+    generateInstance(5)
+    #return a
 end
 
 """
@@ -25,23 +28,34 @@ function readInputFile(inputFile::String)
 
     data = readlines(datafile)
     close(datafile)
-    n = size(data,1)
-    m= size(split(data[1]," "),1)
-    t = Array{Int64}(zeros(n,n))
-    y = Array{Int64}(undef, 0,3)
+    n = size(data,1)-1
+    m = size(split(data[1]," "),1)-1
+    t = Array{Int64}(undef, n,m)
+    y = Array{Int64}(undef, 0)
+    k = Array{Int64}(undef, 0)
+
+    a = Array{Int64}(undef, 0, 2)
+
     # For each line of the input file
     for i in 1:n
         line = data[i]
         values = split(line, " ")
         for j in 1:m 
-            v = parse(Int64, values[j])
-            if v!= 0
-                y = vcat(y, [v i j])
+            if cmp(values[j],"A")==0
+                a = vcat(a, [i j])
+                t[i,j] = 1
+            else
+                t[i,j] = 0
             end
-            t[i,j]=v
         end
+        append!(k, parse(Int64, values[n+1]))
     end
-    return t, y
+    line = data[n+1]
+    values = split(line, " ")
+    for j in 1:m
+        append!(y, parse(Int64, values[j]))
+    end
+    return t,y, k, a
     #renvoie la taille n de la grille, la liste des valeurs des rectangles y1, l'index de ses rectangles dans y2 (au meme index)
 end
 
@@ -52,42 +66,36 @@ Display a grid represented by a 2-dimensional array
 Argument:
 
 """
-function displayGrid(y::Array{})
-    n = size(y,2)
-    m = size(y,1)
+function displayGrid(t::Array{},y::Array{},k::Array{})
+    n = size(t,1)
+    m = size(t,2)
     print("-")
-    for i in 1:m-1
-        print("--")
-    end
-    println("--")
-
-    for i in 1:n
-        print("|")
-        for j in 1:m-1
-            if y[i,j]!=0
-                print(y[i,j]," ")
-            else
-                print("  ")
-            end
-        end
-        if y[i,m]!=0
-            print(y[i,m])
-        else
-            print(" ")
-        end
-        println("|")
-        if i!=n
-            print("|")
-            for i in 1:m-1
-                print("  ")
-            end
-            println(" |")
-        end
-    end
     for i in 1:m
-        print("--")
+        print("-")
     end
     println("-")
+    for i in 1:n
+        print("|")
+        for j in 1:m
+            if t[i,j] == 1
+                print("A")
+            else 
+                print(" ")
+            end
+        end
+        print("|")
+        println(k[i])
+    end
+    print("-")
+    for i in 1:m
+        print("-")
+    end
+    println("-")
+    print(" ")
+    for i in 1:m
+        print(y[i])
+    end
+    println()
 end
 
 
@@ -97,61 +105,38 @@ Display cplex solution
 Argument
 - x: 2-dimensional variables array such that x[i, k] = 1 if cell i has value k
 """
-function displaySolution(y::Array{}, t::Array{})
-    n = size(t,2)
-    p = size(t,1)
+function displaySolution(y::Array{},k::Array{}, t::Array{},x::Array{VariableRef,2})
+    n = size(t,1)
+    m = size(t,2)
     print("-")
-    for i in 1:p-1
-        print("--")
+    for i in 1:m
+        print("-")
     end
-    println("--")
+    println("-")
     for i in 1:n
         print("|")
-        for j in 1:p
-            haveNum = false
-            for k in 1:size(y,1)
-                if (i-1)*p+j == y[k,2]
-                    print(y[k,1])
-                    haveNum = true
-                end
-            end
-            if !haveNum
-                print(" ")
-            end
-            if j==p
-                println("|")
-                break
-            end
-            if t[i,j]!=t[i,j+1]
-                print("|")
+        for j in 1:m
+            if t[i,j] == 1
+                print("A")
+            elseif JuMP.value(x[i,j]) > TOL
+                print("T")
             else
                 print(" ")
             end
         end
-        if i==n
-            break
-        end
         print("|")
-        for j in 1:p
-            if t[i,j]!=t[i+1,j]
-                print("-")
-            else 
-                print(" ")
-            end
-            if j!=p
-                if i!=1 && t[i-1,j] == int("|")
-                    print("-")
-                else
-                    print(" ")
-                end
-            end
-        end
-        println("|")
+        println(k[i])
     end
-    for i in 1:n
-        print("--")
+    print("-")
+    for i in 1:m
+        print("-")
     end
     println("-")
+    print(" ")
+    for i in 1:m
+        print(y[i])
+    end
+    println()
 end
 
 

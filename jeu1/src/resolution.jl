@@ -8,59 +8,109 @@ TOL = 0.00001
 """
 Solve an instance with CPLEX
 """
-function cplexSolve(n::Int64, p::Int64, y::Array{Int, 2})
-
-    nbRec = size(y,1)
+function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
+    n = size(y,1)
+    p = size(k,1)
+    nbA = size(a,1)
 
     # Create the model
     m = Model(CPLEX.Optimizer)
 
     ########### Variables ########### 
 
-    # x[i, k] = 1 if cell i is in rectangle k
-    @variable(m, x[1:n, 1:p, 1:nbRec], Bin)
+    # x[i, j] = 1 if cell i,j is a tent
+    @variable(m, x[1:n, 1:p], Bin)
 
 
     ########### constraints ###########
     # 1 - Set the fixed value in the grid
-    for i in 1:nbRec
-        @constraint(m, x[y[i,2], y[i,3],i] == 1)
+    for i in 1:size(a,1)
+        @constraint(m, x[a[i,1],a[i,2]]== 0)
     end
 
-    # 2 - a case belong to only on rectangle
-    @constraint(m, [i in 1:n, j in 1:p], sum(x[i,j,k] for k in 1:nbRec)==1)
+    # 2 - each column contain the indicate value of tents
+    @constraint(m, [i in 1:n], sum(x[i,j] for j in 1:p)==k[i])
 
-    # 3 - nb of case of one rectangle is respected and 
-    @constraint(m, [k in 1:nbRec], sum(x[i,j,k] for i in 1:n for j in 1:p)==y[k,1])
+    # 3 - each line contain the indicate value of tents
+    @constraint(m, [j in 1:p], sum(x[i,j] for i in 1:n)==y[j])
 
-    # 4 - rectangles with a number odd of case are juste lines
-    #@constraint(m, [k in 1:nbRec, i in 1:n-1, j in 1:p-1; rem(y[k,1],2)==1 || y[k,1]==2], x[i,j,k]+x[i+1,j,k]+x[i,j+1,k] <= 2)
-    #@constraint(m, [k in 1:nbRec, i in 1:n-1, j in 2:p; rem(y[k,1],2)==1 || y[k,1]==2], x[i,j,k]+x[i+1,j,k]+x[i,j-1,k] <= 2)
-    #@constraint(m, [k in 1:nbRec, i in 2:n, j in 1:p-1; rem(y[k,1],2)==1 || y[k,1]==2], x[i,j,k]+x[i-1,j,k]+x[i,j+1,k] <= 2)
-    #@constraint(m, [k in 1:nbRec, i in 2:n, j in 2:p; rem(y[k,1],2)==1 || y[k,1]==2], x[i,j,k]+x[i-1,j,k]+x[i,j-1,k] <= 2)
+    # 4 - the number of tents is the number of tree
+    @constraint(m, sum(x[i,j] for i in 1:n for j in 1:p)==nbA)
     
+    # 4 - each tree have a tent next to it
+    for i in 1:nbA
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]>=2 && a[i,2]<=p-1
+            @constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1]-1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
+        end
+        #each sides
+        if a[i,1]==1 && a[i,2]>=2 && a[i,2]<=p-1
+            @constraint(m, x[a[i,1]+1,a[i,2]] + x[a[i,1],a[i,2]+1] + x[a[i,1],a[i,2]-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]>=2 && a[i,2]<=p-1
+            @constraint(m, x[n-1,a[i,2]] + x[n,a[i,2]+1] + x[n,a[i,2]-1]>=1)
+        end
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==1
+            @constraint(m, x[a[i,1]+1,1] + x[a[i,1]-1,1] + x[a[i,1],2] >=1)
+        end
+        if a[i,1]>=2 && a[i,1]<=n-1 && a[i,2]==p
+            @constraint(m, x[a[i,1]+1,p] + x[a[i,1]-1,p] + x[a[i,1],p-1] >=1)
+        end
+        #each angles
+        if a[i,1]==1 && a[i,2]==1
+            @constraint(m, x[2,1] + x[1,2]>=1)
+        end
+        if a[i,1]==1 && a[i,2]==p
+            @constraint(m, x[2,p] + x[1,p-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]==p
+            @constraint(m, x[n-1,p] + x[n,p-1]>=1)
+        end
+        if a[i,1]==n && a[i,2]==1
+            @constraint(m, x[n-1,1] + x[n,2] >=1)
+        end
+    end
 
-    # 5 - cases of a same rectangle are grouped (a case i of rect k have a case j also from rect k next to it)
-    #@constraint(m, [k in 1:nbRec, i in 2:n-1, j in 2:p-1; y[k,1]!=2], x[i,j,k]+x[i+1,j,k]+x[i-1,j,k]+x[i,j+1,k]+x[i,j-1,k] >= 2)
+    # 2 tents can not be next to each other or in diag
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j+1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j-1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j+1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j-1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j+1]<=1)
+        #each side
+    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[1,j+1]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[1,j-1]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j+1]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j-1]<=1)
 
-    # 6 - cas of an even rectangle must has at least 2 neighboords of the its rectangle
-    #@constraint(m, [k in 1:nbRec, i in 2:n-1, j in 2:p-1; rem(y[k,1],4)==0 && x[i,j,k]==1],x[i+1,j,k]+x[i-1,j,k]+x[i,j+1,k]+x[i,j-1,k] >= 2)
-   
-    @constraint(m, [k in 1:nbRec, j in 2:p-1; rem(y[k,1],4)==0 && x[1,j,k]==1], x[2,j,k]+x[1,j+1,k]+x[1,j-1,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, j in 2:p-1; rem(y[k,1],4)==0 && x[1,j,k]==1], x[2,j,k]+x[1,j+1,k]+x[1,j-1,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, j in 2:p-1; rem(y[k,1],4)==0 && x[n,j,k]==1], x[n-1,j,k]+x[n,j+1,k]+x[n,j-1,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, i in 2:n-1; rem(y[k,1],4)==0 && x[i,1,k]==1], x[i-1,1,k]+x[i+1,1,k]+x[i,2,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, i in 2:n-1; rem(y[k,1],4)==0 && x[i,p,k]==1], x[i-1,p,k]+x[i+1,p,k]+x[i,p-1,k] >= 1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j]<=1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n,j+1]<=1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j+1]<=1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j-1]<=1)
+
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i,2]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i+1,1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i-1,1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i-1,2]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i+1,2]<=1)
     
-    @constraint(m, [k in 1:nbRec, y[k,1]!=2],  x[1,2,k]+x[2,1,k] >= x[1,1,k])
-    #@constraint(m, [k in 1:nbRec, rem(y[k,1],2)==0 && y[k,1]!=2 && x[n,p,k]==1], x[n,p-1,k]+x[n-1,p,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, rem(y[k,1],2)==0 && y[k,1]!=2 && x[n,1,k]==1], x[n,2,k]+x[n-1,1,k] >= 1)
-    #@constraint(m, [k in 1:nbRec, rem(y[k,1],2)==0 && y[k,1]!=2 && x[1,p,k]==1], x[1,p-1,k]+x[2,p,k] >= 1)
-    
-    #@constraint(m, [k in 1:nbRec, i in 1:n-1, j in 1:p-1; rem(y[k,1],4)==0], x[i,j,k]+x[i+1,j+1,k]==x[i+1,j,k]+x[i,j+1,k]) 
-    # TODO
-    println("In file resolution.jl, in method cplexSolve(), TODO: fix input and output, define the model")
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i,p-1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i+1,p]<=1)
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i-1,p-1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i+1,p-1]<=1)
 
+        # each angles
+    @constraint(m, x[1,1] + x[1,2] + x[2,1] + x[2,2]<=1)
+    @constraint(m, x[1,1] + x[2,1] + x[2,2]<=1)
+    @constraint(m, x[1,p] + x[1,p-1] + x[2,p-1]<=1)
+    @constraint(m, x[1,p] + x[2,p] + x[2,p-1]<=1)
+    @constraint(m, x[n,1] + x[n,2] + x[n-1,2]<=1)
+    @constraint(m, x[n,1] + x[n-1,1] + x[n-1,2]<=1)
+    @constraint(m, x[n,p] + x[n,p-1] + x[n-1,p-1]<=1)
+    @constraint(m, x[n,p] + x[n-1,p] + x[n-1,p-1]<=1)
+
+    @objective(m, Min, 1)
     # Start a chronometer
     start = time()
 
@@ -71,20 +121,9 @@ function cplexSolve(n::Int64, p::Int64, y::Array{Int, 2})
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
-    vx = JuMP.value.(x)
-    t = Array{Int64}(undef, n,p)
-    for i in 1:n
-        for j in 1:p
-            for k in 1:nbRec
-                if JuMP.value(x[i,j,k])==1
-                    t[i,j] = k
-                    break
-                end
-            end
-        end 
-    end
-    println(t)
-    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, tps, t
+    # 3 - the binary variable x
+
+    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, tps, x
 end
 
 """
