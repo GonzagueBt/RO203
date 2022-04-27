@@ -32,13 +32,13 @@ function cplexSolve(sizeR::Int64, t::Array{})
     @constraint(m, [i in 1:n, j in 1:p], sum(x[i,j,k] for k in 1:nbR)==1)
 
     #@constraint(m, [i in 1:n*p-1], y[i+1,i] ==0)
-    #@constraint(m, [i in 1:(n-1)*p], y[i,i+p] + y[i+p,i] <=1)
+    #@constraint(m, [i in 1:(n-1)*p], y[i+p,i] ==0)
 
     # 3 the number of palisade of a case is equal to the indicated value
     @constraint(m, [i in 2:n-1, j in 2:p-1; t[i,j]!=0], y[(i-1)*(p)+j,(i-1)*(p)+j+1] + y[(i-1)*(p)+j+1,(i-1)*(p)+j] + y[(i-1)*(p)+j,(i-1)*(p)+j-1] + y[(i-1)*(p)+j-1,(i-1)*(p)+j] + y[(i-1)*(p)+j,(i-2)*p+j] + y[(i-2)*p+j,(i-1)*(p)+j] + y[(i-1)*(p)+j,i*(p)+j] + y[i*(p)+j,(i-1)*(p)+j] == t[i,j])   
         #each side
     @constraint(m, [j in 2:p-1; t[1,j]!=0], y[j,j+1] + y[j+1,j] + y[j,j-1] + y[j-1,j] + y[j,p+j] + y[j+p,j] + 1 == t[1,j])
-    @constraint(m, [j in 2:p-1; t[n,j]!=0], y[n*(p-1)+j,n*(p-1)+j+1] + y[n*(p-1)+j+1,n*(p-1)+j] + y[n*(p-1)+j,n*(p-1)+j-1] + y[n*(p-1)+j-1,n*(p-1)+j] + y[n*(p-1)+j,n*(p-2)+j] + y[n*(p-2)+j,n*(p-1)+j] + 1 == t[n,j])
+    @constraint(m, [j in 2:p-1; t[n,j]!=0], y[(n-1)*(p)+j,(n-1)*(p)+j+1] + y[(n-1)*(p)+j+1,(n-1)*(p)+j] + y[(n-1)*(p)+j,(n-1)*(p)+j-1] + y[(n-1)*(p)+j-1,(n-1)*(p)+j] + y[(n-1)*(p)+j,(n-2)*(p)+j] + y[(n-2)*(p)+j,(n-1)*(p)+j] + 1 == t[n,j])
 
     @constraint(m, [i in 2:n-1; t[i,1]!=0], y[(i-1)*(p)+1,(i-1)*(p)+2] + y[(i-1)*(p)+2,(i-1)*(p)+1] + y[(i-1)*(p)+1,(i-2)*p+1] + y[(i-2)*p+1,(i-1)*(p)+1] + y[(i-1)*p+1,(i)*p+1] + y[(i)*p+1,(i-1)*p+1] + 1 == t[i,1])
     @constraint(m, [i in 2:n-1; t[i,p]!=0], y[(i-1)*(p)+p,(i-1)*p+p-1] + y[(i-1)*p+p-1,(i-1)*(p)+p] + y[(i-1)*p+p,(i-1)*p] + y[(i-1)*p, (i-1)*p+p] + y[(i-1)*(p)+p,(i)*p+p] + y[(i)*p+p,(i-1)*(p)+p] + 1 == t[i,p])
@@ -102,14 +102,14 @@ function cplexSolve(sizeR::Int64, t::Array{})
 
 
 
-    #for i in 1:n
-    #    for j in 1:p
-    #        @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= nbR-1 )
-    #    end
-    #end
+    for i in 1:n
+        for j in 1:p
+            @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= nbR-1 )
+        end
+    end
 
-    @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j] + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
-    @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
+    @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j]  + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
+    @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + y[(i)*p+j,(i-1)*p+j]  + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
         
     # Start a chronometer
     start = time()
