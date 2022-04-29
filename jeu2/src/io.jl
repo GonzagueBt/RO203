@@ -138,6 +138,8 @@ function displaySolution(t::Array{},x::Array{})
                 end
                 if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
                     print("|")
+                elseif (x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL) && (x[(i-1)*(m)+j+1,(i)*(m)+j+1] > TOL || x[(i)*(m)+j+1,(i-1)*(m)+j+1]  > TOL)
+                    print("-")
                 else
                     print(" ")
                 end

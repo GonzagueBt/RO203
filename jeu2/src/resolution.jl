@@ -31,9 +31,6 @@ function cplexSolve(sizeR::Int64, t::Array{})
     # 2 - each case belong to only one region
     @constraint(m, [i in 1:n, j in 1:p], sum(x[i,j,k] for k in 1:nbR)==1)
 
-    #@constraint(m, [i in 1:n*p-1], y[i+1,i] ==0)
-    #@constraint(m, [i in 1:(n-1)*p], y[i+p,i] ==0)
-
     # 3 the number of palisade of a case is equal to the indicated value
     @constraint(m, [i in 2:n-1, j in 2:p-1; t[i,j]!=0], y[(i-1)*(p)+j,(i-1)*(p)+j+1] + y[(i-1)*(p)+j+1,(i-1)*(p)+j] + y[(i-1)*(p)+j,(i-1)*(p)+j-1] + y[(i-1)*(p)+j-1,(i-1)*(p)+j] + y[(i-1)*(p)+j,(i-2)*p+j] + y[(i-2)*p+j,(i-1)*(p)+j] + y[(i-1)*(p)+j,i*(p)+j] + y[i*(p)+j,(i-1)*(p)+j] == t[i,j])   
         #each side
@@ -57,10 +54,10 @@ function cplexSolve(sizeR::Int64, t::Array{})
     end
 
     #No palisade between 2 case from opposite side 
-    @constraint(m, [i in 2:n-1], y[i*(p)+1, i*(p)]==0)
-    @constraint(m, [i in 2:n-1], y[i*(p), i*(p)+1]==0)
+    #@constraint(m, [i in 2:n-1], y[i*(p)+1, i*(p)]==0)
+    #@constraint(m, [i in 2:n-1], y[i*(p), i*(p)+1]==0)
 
-    # a case of a region always has at least one neighboord which belong to the same region
+    # 4 - a case of a region always has at least one neighboord which belong to the same region
     @constraint(m, [i in 2:n-1, j in 2:p-1, k in 1:nbR; sizeR>1],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] >= x[i,j,k])
     @constraint(m, [i in 3:n-2, j in 3:p-2, k in 1:nbR; sizeR>=5],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] + x[i,j+2,k] + x[i,j-2,k] + x[i+2,j,k] + x[i-2,j,k] + x[i+1,j+1,k] + x[i-1,j-1,k] + x[i-1,j+1,k] + x[i+1,j-1,k]>= x[i,j,k]*3)
     
@@ -106,7 +103,7 @@ function cplexSolve(sizeR::Int64, t::Array{})
         end
     end
 
-    # there exist a palisade between case i and j if there are not in the same region
+    # 5 - there exist a palisade between case i and j if there are not in the same region
     @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j]  + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
     @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + y[(i)*p+j,(i-1)*p+j]  + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
         
@@ -128,7 +125,9 @@ function cplexSolve(sizeR::Int64, t::Array{})
     ybis = Array{Int64}(zeros(n*p,n*p))
     for i in 1:n*p
         for j in 1:n*p
-            ybis[i,j] = JuMP.value(y[i,j])
+            if JuMP.value(y[i,j])==1
+                ybis[i,j] = JuMP.value(y[i,j])
+            end
         end
     end
     # Return:
@@ -217,10 +216,7 @@ function solveDataSet()
     for file in filter(x->occursin(".txt", x), readdir(dataFolder))  
         
         println("-- Resolution of ", file)
-        readInputFile(dataFolder * file)
-
-        # TODO
-        println("In file resolution.jl, in method solveDataSet(), TODO: read value returned by readInputFile()")
+        sizeR, t = readInputFile(dataFolder * file)
         
         # For each resolution method
         for methodId in 1:size(resolutionMethod, 1)
@@ -237,17 +233,13 @@ function solveDataSet()
                 
                 # If the method is cplex
                 if resolutionMethod[methodId] == "cplex"
-                    
-                    # TODO 
-                    println("In file resolution.jl, in method solveDataSet(), TODO: fix cplexSolve() arguments and returned values")
-                    
+                                        
                     # Solve it and get the results
-                    isOptimal, resolutionTime = cplexSolve()
+                    isOptimal, resolutionTime, x,y = cplexSolve(sizeR, t)
                     
                     # If a solution is found, write it
                     if isOptimal
-                        # TODO
-                        println("In file resolution.jl, in method solveDataSet(), TODO: write cplex solution in fout") 
+                        writeSolution(fout,t,x,y)
                     end
 
                 # If the method is one of the heuristics
@@ -265,7 +257,7 @@ function solveDataSet()
                         println("In file resolution.jl, in method solveDataSet(), TODO: fix heuristicSolve() arguments and returned values")
                         
                         # Solve it and get the results
-                        isOptimal, resolutionTime = heuristicSolve()
+                        y = heuristicSolve(sizeR, t)
 
                         # Stop the chronometer
                         resolutionTime = time() - startingTime
@@ -274,13 +266,10 @@ function solveDataSet()
 
                     # Write the solution (if any)
                     if isOptimal
-
-                        # TODO
-                        println("In file resolution.jl, in method solveDataSet(), TODO: write the heuristic solution in fout")
-                        
+                        writeSolution(fout,t,x,y)
                     end 
                 end
-
+                println(fout)
                 println(fout, "solveTime = ", resolutionTime) 
                 println(fout, "isOptimal = ", isOptimal)
                 
@@ -291,9 +280,87 @@ function solveDataSet()
 
 
             # Display the results obtained with the method on the current instance
-            include(outputFile)
+            #include(outputFile)
             println(resolutionMethod[methodId], " optimal: ", isOptimal)
             println(resolutionMethod[methodId], " time: " * string(round(solveTime, sigdigits=2)) * "s\n")
         end         
     end 
+end
+
+
+"""
+Write a solution in an output stream
+
+Arguments
+- fout: the output stream (usually an output file)
+- t: 2-dimensional array of size n*n
+"""
+function writeSolution(fout::IOStream,t::Array{},y::Array{VariableRef,3},x::Array{})
+    n = size(t,1)
+    m = size(t,2)
+    for i in 1:n
+        for j in 1:m
+            isOk = false
+            k=1
+            while !isOk
+                if JuMP.value(y[i,j,k])> TOL
+                    print(fout,k," ")
+                    isOk = true
+                end
+                k+=1
+            end
+        end
+        println(fout)
+    end
+    print(fout,"-")
+    for j in 1:m-1
+        print(fout,"--")
+    end
+    println(fout,"--")
+    for i in 1:n
+        print(fout,"|")
+        for j in 1:m-1
+            if t[i,j]!=0
+                print(fout,t[i,j])
+            else
+                print(fout," ")
+            end
+            if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+                print(fout,"|")
+            else
+                print(fout," ")
+            end
+        end
+        if t[i,m]!=0
+            print(fout,t[i,m])
+        else
+            print(fout," ")
+        end
+        println(fout,"|")
+        if i!=n
+            print(fout,"|")
+            for j in 1:m-1
+                if x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL 
+                    print(fout,"-")
+                else
+                    print(fout," ")
+                end
+                if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+                    print(fout,"|")
+                else
+                    print(fout," ")
+                end
+            end
+            if x[(i-1)*(m)+m,i*(m)+m] > TOL || x[i*(m)+m,(i-1)*(m)+m] > TOL 
+                print(fout,"-")
+            else
+                print(fout," ")
+            end
+            println(fout,"|")
+        end
+    end
+    for j in 1:m
+        print(fout,"--")
+    end
+    println(fout,"-")
 end
