@@ -10,7 +10,7 @@ function Palisade(inputFile::String="", method::String="")
     if inputFile==""
         inputFile="../data/instanceTest.txt"
     end
-    sizeR, t = readInputFile("../data/instanceTest.txt")
+    sizeR, t = readInputFile(inputFile)
     if method=="" || method=="S"
         Opt, time, x,y = cplexSolve(sizeR, t)
     elseif method=="H"

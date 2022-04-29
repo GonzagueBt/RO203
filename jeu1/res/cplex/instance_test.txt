@@ -1,0 +1,13 @@
+----------
+|A TAA   |1
+|T A T AT|3
+|A T     |1
+|   A   T|1
+| T T    |2
+|       A|0
+|T AAT AT|3
+| AT     |1
+----------
+ 21312003 
+solveTime = 0.0021469593048095703
+isOptimal = true

@@ -1,0 +1,15 @@
+------------
+|   A ATAT |2
+|T  T      |2
+|A       AT|1
+|TA T  AT  |3
+|   A  A A |0
+|T  A  T T |3
+|A  T A   A|1
+|T A  TAT T|4
+|A T       |1
+|TA  AT AT |3
+------------
+ 5013022232 
+solveTime = 0.0035321712493896484
+isOptimal = true
