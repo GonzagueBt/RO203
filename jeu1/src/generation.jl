@@ -10,11 +10,7 @@ Argument
 function generateInstance(n::Int64)
 
     # Nb of trees 
-    if n<10
-        t=trunc(int,0.18*n*n)
-    else
-        t=trunc(int,0.2*n*n)
-    end
+    t=trunc(Int,0.2*n*n)
 
     # Matrix representing grid, zeros are empty squares, ones are trees, twos are tents
     grid = zeros(Int64, n, n)
@@ -22,530 +18,553 @@ function generateInstance(n::Int64)
     i=0
 
     while (i<t)
-        x = rand(r[1:n])
-        y = rand(r[1:n])
-        s = grid[x-1][y]+grid[x+1][y]+grid[x][y-1]+grid[x][y+1]+grid[x-1][y-1]+grid[x-1][y+1]+grid[x+1][y-1]+grid[x+1][y+1]
-        # Place tree if empty square in coords (x,y) and square is not surrounded by 8 trees
-        if (grid[x][y]==0 && s<8)
-            grid[x][y]=1
+        x = rand(1:n)
+        y = rand(1:n)
+        #println("x=",x)
+        #println("y=",y)
+        #println("i=",i)
+        
+        # s is the number of boxes around the box [x,y] that are empty
+        if (x!=1 && x!= n && y!= 1 && y!=n)
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x+1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x-1,y-1]/2)+ceil(grid[x-1,y+1]/2)+ceil(grid[x+1,y-1]/2)+ceil(grid[x+1,y+1]/2)
+        elseif (x==1 && x!= n && y!= 1 && y!=n) # edge 1
+            s = ceil(grid[x+1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x+1,y-1]/2)+ceil(grid[x+1,y+1]/2)+3
+        elseif (x!=1 && x== n && y!= 1 && y!=n) # edge 2
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x-1,y-1]/2)+ceil(grid[x-1,y+1]/2)+3
+        elseif (x!=1 && x!= n && y== 1 && y!=n) # edge 3
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x+1,y]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x-1,y+1]/2)+ceil(grid[x+1,y+1]/2)+3
+        elseif (x!=1 && x!= n && y!= 1 && y==n) # edge 4
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x+1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x-1,y-1]/2)+ceil(grid[x+1,y-1]/2)+3
+        elseif (x==1 && x!= n && y== 1 && y!=n) # corner 1
+            s = ceil(grid[x+1,y]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x+1,y+1]/2)+5
+        elseif (x==1 && x!= n && y!= 1 && y==n) # corner 2
+            s = ceil(grid[x+1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x+1,y-1]/2)+5
+        elseif (x!=1 && x== n && y== 1 && y!=n) # corner 3
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x,y+1]/2)+ceil(grid[x-1,y+1]/2)+5
+        elseif (x!=1 && x==n && y!= 1 && y==n) # corner 4
+            s = ceil(grid[x-1,y]/2)+ceil(grid[x,y-1]/2)+ceil(grid[x-1,y-1]/2)+5
+        end
+
+        #println("s=",s)
+        #println(grid)
+
+        # Place tree if empty square in coords (x,y) and square is not surrounded by 8 trees or tents
+        if (grid[x,y]==0 && s<8)
+            grid[x,y]=1
             # Place tent next to tree if empty square and square not next to or diagonal to another tent
-            # Cases if in a corner, on an edge, or not
+            # Boxes if in a corner, on an edge, or not
             if (x!=1 && x!= n && y!= 1 && y!=n)
-                temp=grid[x+1][y]+grid[x-1][y]+grid[x][y+1]+grid[x][y-1]
+                temp=grid[x+1,y]+grid[x-1,y]+grid[x,y+1]+grid[x,y-1]
             elseif (x==1 && x!= n && y!= 1 && y!=n) # edge 1
-                temp=grid[x+1][y]+grid[x][y+1]+grid[x][y-1]
+                temp=grid[x+1,y]+grid[x,y+1]+grid[x,y-1]
             elseif (x!=1 && x== n && y!= 1 && y!=n) # edge 2
-                temp=grid[x-1][y]+grid[x][y+1]+grid[x][y-1]
+                temp=grid[x-1,y]+grid[x,y+1]+grid[x,y-1]
             elseif (x!=1 && x!= n && y== 1 && y!=n) # edge 3
-                temp=grid[x+1][y]+grid[x-1][y]+grid[x][y+1]
+                temp=grid[x+1,y]+grid[x-1,y]+grid[x,y+1]
             elseif (x!=1 && x!= n && y!= 1 && y==n) # edge 4
-                temp=grid[x+1][y]+grid[x-1][y]+grid[x][y-1]
+                temp=grid[x+1,y]+grid[x-1,y]+grid[x,y-1]
             elseif (x==1 && x!= n && y== 1 && y!=n) # corner 1
-                temp=grid[x+1][y]+grid[x][y+1]
+                temp=grid[x+1,y]+grid[x,y+1]
             elseif (x==1 && x!= n && y!= 1 && y==n) # corner 2
-                temp=grid[x+1][y]+grid[x][y-1]
+                temp=grid[x+1,y]+grid[x,y-1]
             elseif (x!=1 && x== n && y== 1 && y!=n) # corner 3
-                temp=grid[x-1][y]+grid[x][y+1]
+                temp=grid[x-1,y]+grid[x,y+1]
             elseif (x!=1 && x== n && y!= 1 && y==n) # corner 4
-                temp=grid[x-1][y]+grid[x][y-1]
+                temp=grid[x-1,y]+grid[x,y-1]
             end
-            
+
             temp2=temp
-            while (temp!=temp2+2)       # While no tent has been placed
-                alea = rand(r[1:4])
-                # Cases if in a corner, on an edge, or not
+            while (temp2!=temp+2)       # While no tent has been placed
+                
+                # Boxes if in a corner, on an edge, or not
                 if (x!=1 && x!= n && y!= 1 && y!=n)
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                    if (x!=2 && x!= n-1 && y!= 2 && y!=n-1)                        
+                        if (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y-1]=2
                             i+=1
+                        else
+                            temp2=temp2
+                        end   
+
+                    elseif (x==2 && x!= n-1 && y!= 2 && y!=n-1) #inside, line 2                        
+                        if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                            temp2+=2
+                            grid[x,y-1]=2
+                            i+=1
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
+                            temp2+=2
+                            grid[x+1,y]=2
+                            i+=1
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
+                            temp2+=2
+                            grid[x,y+1]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        
+                    elseif (x!=2 && x== n-1 && y!= 2 && y!=n-1) #inside, line n-1                        
+                        if (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+
+                    elseif (x!=2 && x!= n-1 && y== 2 && y!=n-1) #inside, column 2                         
+                        if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x,y+1]=2
                             i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
+                       
+                    elseif (x!=2 && x!= n-1 && y!= 2 && y==n-1) #inside, column n-1                        
+                        if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-2,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
+                        else
+                            temp2=temp2
                         end
-                    end
-                elseif(x==1 && x!= n && y!= 1 && y!=n) # edge 1
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        
+                    elseif (x==2 && x!= n-1 && y==2 && y!=n-1) #inside, line and column 2                        
+                        if (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y+1]=2
                             i+=1
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x,y]!=2)
+                            temp2+=2
+                            grid[x,y-1]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        
+                    elseif (x!=2 && x== n-1 && y!= 2 && y==n-1) #inside, line and column n-1
+                        if (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-2,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x+1,y]=2
                             i+=1
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                       
+                    elseif (x==2 && x!= n-1 && y!= 2 && y==n-1) #inside, line 2 and column n-1
+                        if (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==4)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        
+                    elseif (x!=2 && x== n-1 && y== 2 && y!=n-1) #inside, line n-1 and column 2
+                        if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x+1][y+1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y-1]=2
                             i+=1
-                        end
-                    end
-                elseif(x!=1 && x== n && y!= 1 && y!=n) # edge 2
-                    if (alea==1)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        end
-                    end
-                elseif(x!=1 && x!= n && y== 1 && y!=n) # edge 3
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        end
-                    elseif (alea==2)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
+                        else
+                            temp2=temp2
                         end
                     end
-                elseif(x!=1 && x!= n && y!= 1 && y==n) # edge 4
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
+
+
+                elseif (x==1 && x!= n && y!= 1 && y!=n) # edge 1      
+                    if (y!=2 && y!=n-1)             
+                        if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y+1]=2
                             i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+
+                    elseif (y==2)
+                        if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x,y+1]=2
                             i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==3)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
+
+                    elseif (y==n-1)
+                        if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x][y-1]=2
+                            grid[x,y-1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x+1,y+1]!=2 && grid[x+1,y-1]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x,y+1]=2
                             i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
+                        else
+                            temp2=temp2
                         end
                     end
-                elseif(x==1 && x!= n && y==1 && y!=n) # corner 1
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
+    
+                elseif (x!=1 && x== n && y!= 1 && y!=n) # edge 2
+                    if (y!=2 && y!=n-1)
+                        if (grid[x,y+1]==0 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y-1]=2
                             i+=1
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==2)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
+
+                    elseif (y==2)
+                        if (grid[x,y+1]==0 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y-1]=2
                             i+=1
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+
+                    elseif (y==n-1)
+                        if (grid[x,y+1]==0 && grid[x-1,y+1]!=2 && grid[x-2,y]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
+                        elseif (grid[x,y-1]==0 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
                             temp2+=2
-                            grid[x+1][y]=2
+                            grid[x,y-1]=2
                             i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x][y+1]==0 && grid[x+1][y+1]!=2 && grid[x+1][y+2]!=2 && grid[x+1][y]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y-1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y+1]!=2 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x+1][y+1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        end
-                    end
-                elseif(x==1 && x!= n && y!= 1 && y==n) # corner 2
-                    if (alea==1)
-                        if (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==3)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x][y-1]==0 && grid[x+1][y-1]!=2 && grid[x+1][y]!=2 && grid[x][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x+1][y]==0 && grid[x+2][y]!=2 && grid[x+2][y-1]!=2 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x+1][y-1]!=2)
-                            temp2+=2
-                            grid[x+1][y]=2
-                            i+=1
+                        else
+                            temp2=temp2
                         end
                     end
-                elseif(x!=1 && x== n && y==1 && y!=n) # corner 3
-                    if (alea==1)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
+
+                elseif (x!=1 && x!= n && y==1 && y!=n) # edge 3
+                    if (x!=2 && x!=n-1)
+                        if (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x+1,y+1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-1,y+1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
+                            temp2+=2
+                            grid[x,y+1]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==2)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
+
+                    elseif (x==2)
+                        if (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x+1,y+1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x-1,y+1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x-1,y]=2
                             i+=1
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
+                            temp2+=2
+                            grid[x,y+1]=2
+                            i+=1
+                        else
+                            temp2=temp2
                         end
-                    elseif (alea==3)
-                        if (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
+
+                    elseif (x==n-1)
+                        if (grid[x+1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x+1,y+1]!=2)
                             temp2+=2
-                            grid[x][y+1]=2
+                            grid[x+1,y]=2
                             i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
+                        elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-1,y+1]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x-1,y]=2
                             i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y+1]!=2 && grid[x-2][y]!=2 && grid[x-2][y+1]!=2 && grid[x-1][y+1]!=2)
+                        elseif (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
                             temp2+=2
-                            grid[x-1][y]=2
+                            grid[x,y+1]=2
                             i+=1
-                        elseif (grid[x][y+1]==0 && grid[x-1][y+1]!=2 && grid[x-1][y+2]!=2 && grid[x-2][y]!=2 && grid[x][y+2]!=2 && grid[x][y]!=2)
-                            temp2+=2
-                            grid[x][y+1]=2
-                            i+=1
-                        end
-                    end
-                elseif(x!=1 && x== n && y!= 1 && y==n) # corner 4
-                    if (alea==1)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        end
-                    elseif (alea==2)
-                        if (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==3)
-                        if (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
-                        elseif (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        end
-                    elseif (alea==4)
-                        if (grid[x-1][y]==0 && grid[x][y]!=2 && grid[x][y-1]!=2 && grid[x-2][y]!=2 && grid[x-2][y-1]!=2 && grid[x-1][y-1]!=2)
-                            temp2+=2
-                            grid[x-1][y]=2
-                            i+=1
-                        elseif (grid[x][y-1]==0 && grid[x][y-2]!=2 && grid[x-1][y-1]!=2 && grid[x-1][y]!=2 && grid[x-1][y-2]!=2 && grid[x][y]!=2 && grid[x][y-2]!=2)
-                            temp2+=2
-                            grid[x][y-1]=2
-                            i+=1
+                        else
+                            temp2=temp2
                         end
                     end
+                   
+                elseif (x!=1 && x!= n && y!= 1 && y==n) # edge 4
+                    if (x!=2 && x!=n-1)
+                        if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                            temp2+=2
+                            grid[x,y-1]=2
+                            i+=1
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x+1,y-1]!=2)
+                            temp2+=2
+                            grid[x+1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
+                        end
+
+                    elseif (x==2)
+                        if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                            temp2+=2
+                            grid[x,y-1]=2
+                            i+=1
+                        elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x+1,y-1]!=2)
+                            temp2+=2
+                            grid[x+1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
+                        end
+
+                    elseif (x==n-1)
+                        if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y-1]!=2)
+                            temp2+=2
+                            grid[x-1,y]=2
+                            i+=1
+                        elseif (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                            temp2+=2
+                            grid[x,y-1]=2
+                            i+=1
+                        elseif (grid[x+1,y]==0 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x+1,y-1]!=2)
+                            temp2+=2
+                            grid[x+1,y]=2
+                            i+=1
+                        else
+                            temp2=temp2
+                        end
+                    end
+
+                elseif (x==1 && x!= n && y==1 && y!=n) # corner 1
+                    if (grid[x,y+1]==0 && grid[x+1,y+1]!=2 && grid[x+1,y+2]!=2 && grid[x+1,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
+                        temp2+=2
+                        grid[x,y+1]=2
+                        i+=1
+                    elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y+1]!=2 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x+1,y+1]!=2)
+                        temp2+=2
+                        grid[x+1,y]=2
+                        i+=1
+                    else
+                        temp2=temp2
+                    end
+                    
+                elseif (x==1 && x!= n && y!= 1 && y==n) # corner 2
+                    if (grid[x,y-1]==0 && grid[x+1,y-1]!=2 && grid[x+1,y]!=2 && grid[x,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                        temp2+=2
+                        grid[x,y-1]=2
+                        i+=1
+                    elseif (grid[x+1,y]==0 && grid[x+2,y]!=2 && grid[x+2,y-1]!=2 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x+1,y-1]!=2)
+                        temp2+=2
+                        grid[x+1,y]=2
+                        i+=1
+                    else
+                        temp2=temp2
+                    end
+                    
+                elseif (x!=1 && x== n && y==1 && y!=n) # corner 3
+                    if (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y+1]!=2 && grid[x-2,y]!=2 && grid[x-2,y+1]!=2 && grid[x-1,y+1]!=2)
+                        temp2+=2
+                        grid[x-1,y]=2
+                        i+=1
+                    elseif (grid[x,y+1]==0 && grid[x-1,y+1]!=2 && grid[x-1,y+2]!=2 && grid[x-2,y]!=2 && grid[x,y+2]!=2 && grid[x,y]!=2)
+                        temp2+=2
+                        grid[x,y+1]=2
+                        i+=1
+                    else
+                        temp2=temp2
+                    end
+
+                elseif (x!=1 && x== n && y!= 1 && y==n) # corner 4                  
+                    if (grid[x,y-1]==0 && grid[x,y-2]!=2 && grid[x-1,y-1]!=2 && grid[x-1,y]!=2 && grid[x-1,y-2]!=2 && grid[x,y]!=2 && grid[x,y-2]!=2)
+                        temp2+=2
+                        grid[x,y-1]=2
+                        i+=1
+                    elseif (grid[x-1,y]==0 && grid[x,y]!=2 && grid[x,y-1]!=2 && grid[x-2,y]!=2 && grid[x-2,y-1]!=2 && grid[x-1,y-1]!=2)
+                        temp2+=2
+                        grid[x-1,y]=2
+                        i+=1
+                    else
+                        temp2=temp2
+                    end
+                else
+                    temp2=temp2
+                end
+                if (temp2==temp)
+                    grid[x,y]=0
+                    temp2+=2
                 end
             end
-            if (temp2==temp)
-                grid[x][y]=0
-            end        
+            #println(grid)       
         end
     end
-    
 
+    sumx=zeros(Int64, n, 1)
+    sumy=zeros(Int64, 1, n)
+    res=zeros(Int64, n+1, n+1)
+    for i in 1:n
+        for j in 1:n
+            if grid[i,j]==1
+                res[i,j]=1
+            elseif grid[i,j]==2
+                sumx[i,1]+=1
+                sumy[1,j]+=1
+            end
+        end
+    end
+    for k in 1:n
+        res[k,n+1]=sumx[k,1]
+        res[n+1,k]=sumy[1,k]
+    end
+    #println(res)
 
-    println("In file generation.jl, in method generateInstance(), TODO: generate an instance")
-    
+    return res
 end 
-
-function isGridValid()
-
-
-end
 
 
 """

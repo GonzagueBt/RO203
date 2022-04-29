@@ -139,6 +139,40 @@ function displaySolution(y::Array{},k::Array{}, t::Array{},x::Array{VariableRef,
     println()
 end
 
+"""
+Save a grid in a text file
+Argument
+- t: 2-dimensional array of size n*n
+- outputFile: path of the output file
+"""
+function saveInstance(x, outputFile::String)
+
+    n = size(x, 1) -1
+
+    # Open the output file
+    writer = open("RO203/jeu1/data/"*outputFile, "w")
+
+	for i in 1:n
+		for j in 1:n
+            if x[i,j]==0
+			    print(writer,x[i,j])
+                print(writer," ")
+            else
+                print(writer,"A ")
+            end
+		end
+        print(writer,x[i,n+1])
+        println(writer)
+	end
+    for i in 1:n
+        print(writer,x[n+1,i])
+        print(writer," ")
+    end
+    println(writer)
+    close(writer)    
+end
+
+
 
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder
