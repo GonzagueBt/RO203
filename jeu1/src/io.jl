@@ -4,14 +4,16 @@ using JuMP
 using Plots
 import GR
 
-function test()
-    t,y,k,a = readInputFile("../data/instanceTest2.txt")
+function Tents(inputFile::String="")
     include("resolution.jl")
+    include("heuristic.jl")
+    if inputFile==""
+        inputFile="../data/instanceTest.txt"
+    end
+    t,y,k,a = readInputFile("../data/instanceTest2.txt")
     status, time, x = cplexSolve(y,k,a)
     displayGrid(t,y,k)
     displaySolution(y,k,t,x)
-    include("resolution.jl")
-    #return a
 end
 
 """
