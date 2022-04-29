@@ -124,6 +124,24 @@ function findEmptyRegion(rsize::Array{})
     return 0
 end
 
+function addCaseToReg(res::Array{}, rsize::Array{},palisade::Array{}, region::Int64, i::Int64, j::Int64)
+    res[i,j] = region
+    rsize[region]+=1
+    if i!=1
+        palisade = up(res, memory,palisade,i, j,k)
+    end
+    if j!=1
+        palisade = left(res,memory, palisade,i, j,k)
+    end
+    if j!=m
+        palisade = right(res, memory,palisade,i, j,k)
+    end
+    if i!=n
+        palisade = down(res, memory,palisade,i, j,k)
+    end
+end
+
+
 
 function firstFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::Int64)
     n = size(res,1)
@@ -440,8 +458,6 @@ function oneMoreCase(t::Array{},res::Array{}, palisade::Array{}, rsize::Array{},
                     cpt = howmanyNeighbor(res, i, j+1, k, 3)
                 end
                 if i==2 && j==2 
-                    println("a=",a," et b=",b)
-                    println("je suis bien ici")
                     println(palisade[3,2])
                     println(cpt)
                 end

@@ -21,7 +21,7 @@ Generate all the instances
 Remark: a grid is generated only if the corresponding output file does not already exist
 """
 function generateDataSet()
-
+    
     # TODO
     println("In file generation.jl, in method generateDataSet(), TODO: generate an instance")
     

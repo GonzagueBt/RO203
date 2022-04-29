@@ -4,14 +4,19 @@ using JuMP
 using Plots
 import GR
 
-function test()
-    sizeR, t = readInputFile("../data/instanceTest2.txt")
-    displayGrid(t)
+function Palisade(inputFile::String="", method::String="")
     include("resolution.jl")
     include("heuristic.jl")
-    #heuristicSolve(sizeR, t)
-    Opt, time, x,y = cplexSolve(sizeR, t)
-    nbR = 5
+    if inputFile==""
+        inputFile="../data/instanceTest.txt"
+    end
+    sizeR, t = readInputFile("../data/instanceTest.txt")
+    if method=="" || method=="S"
+        Opt, time, x,y = cplexSolve(sizeR, t)
+    elseif method=="H"
+        y = heuristicSolve(sizeR, t)
+    end
+    displayGrid(t)
     displaySolution(t,y)
 end
 
@@ -95,7 +100,7 @@ function displayGrid(y::Array{})
     println("-")
 end
 
-function displaySolution(t::Array{},x::Array{VariableRef,2})
+function displaySolution(t::Array{},x::Array{})
     n = size(t,1)
     m = size(t,2)
     print("-")
@@ -103,7 +108,6 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
         print("--")
     end
     println("--")
-
     for i in 1:n
         print("|")
         for j in 1:m-1
@@ -112,7 +116,7 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
             else
                 print(" ")
             end
-            if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1]) > TOL
+            if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
                 print("|")
             else
                 print(" ")
@@ -127,18 +131,18 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
         if i!=n
             print("|")
             for j in 1:m-1
-                if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j]) > TOL 
+                if x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL 
                     print("-")
                 else
                     print(" ")
                 end
-                if i>=2 && JuMP.value(x[(i-2)*(m)+j,(i-2)*(m)+j+1]) > TOL
+                if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
                     print("|")
                 else
                     print(" ")
                 end
             end
-            if JuMP.value(x[(i-1)*(n)+m,i*(n)+m]) > TOL 
+            if x[(i-1)*(m)+m,i*(m)+m] > TOL || x[i*(m)+m,(i-1)*(m)+m] > TOL 
                 print("-")
             else
                 print(" ")
@@ -152,75 +156,7 @@ function displaySolution(t::Array{},x::Array{VariableRef,2})
     println("-")
 end
 
-function displaySolutionBis(t::Array{},x::Array{VariableRef,3}, nbR::Int64)
-    n = size(t,1)
-    m = size(t,2)
-    print("-")
-    for i in 1:m-1
-        print("--")
-    end
-    println("--")
 
-    for i in 1:n
-        print("|")
-        for j in 1:m-1
-            if t[i,j]!=0
-                print(t[i,j])
-            else
-                print(" ")
-            end
-            isPal = false
-            for k in 1:nbR
-                if JuMP.value(x[(i-1)*(m)+j,(i-1)*(m)+j+1,k]) > TOL 
-                    print("|")
-                    isPal = true
-                    break
-                end
-            end
-            if !isPal
-                print(" ")
-            end
-        end
-        if t[i,m]!=0
-            print(t[i,m])
-        else
-            print(" ")
-        end
-        println("|")
-        if i!=n
-            print("|")
-            for j in 1:m-1
-                isPal = false
-                for k in 1:nbR
-                    if JuMP.value(x[(i-1)*(n)+j,(i)*(n)+j,k]) > TOL #|| JuMP.value(x[(i)*(n)+j,(i-1)*(n)+j,k]) > TOL
-                        print("--")
-                        isPal = true
-                        break
-                    end
-                end
-                if !isPal
-                    print("  ")
-                end
-            end
-            isPal = false
-            for k in 1:nbR
-                if JuMP.value(x[(i-1)*(n)+m,i*(n)+m,k]) > TOL #|| JuMP.value(x[(i)*(n)+m,(i-1)*(n)+m,k]) > TOL
-                    print("-")
-                    isPal = true
-                    break
-                end
-            end
-            if !isPal
-                print(" ")
-            end
-            println("|")
-        end
-    end
-    for i in 1:m
-        print("--")
-    end
-    println("-")
-end
 """
 Create a pdf file which contains a performance diagram associated to the results of the ../res folder
 Display one curve for each subfolder of the ../res folder.
