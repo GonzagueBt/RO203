@@ -60,8 +60,6 @@ function cplexSolve(sizeR::Int64, t::Array{})
     @constraint(m, [i in 2:n-1], y[i*(p)+1, i*(p)]==0)
     @constraint(m, [i in 2:n-1], y[i*(p), i*(p)+1]==0)
 
-
-    # there exist a palisade between case i and j if there are not in the same region
     # a case of a region always has at least one neighboord which belong to the same region
     @constraint(m, [i in 2:n-1, j in 2:p-1, k in 1:nbR; sizeR>1],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] >= x[i,j,k])
     @constraint(m, [i in 3:n-2, j in 3:p-2, k in 1:nbR; sizeR>=5],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] + x[i,j+2,k] + x[i,j-2,k] + x[i+2,j,k] + x[i-2,j,k] + x[i+1,j+1,k] + x[i-1,j-1,k] + x[i-1,j+1,k] + x[i+1,j-1,k]>= x[i,j,k]*3)
@@ -104,10 +102,11 @@ function cplexSolve(sizeR::Int64, t::Array{})
 
     for i in 1:n
         for j in 1:p
-            @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= nbR-1 )
+            @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= sizeR-1 )
         end
     end
 
+    # there exist a palisade between case i and j if there are not in the same region
     @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j]  + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
     @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + y[(i)*p+j,(i-1)*p+j]  + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
         
@@ -126,22 +125,16 @@ function cplexSolve(sizeR::Int64, t::Array{})
         end
         println()
     end
-    a=2
-    b=5
-    println((a-1)*(n)+b, " = ", t[a,b])
-    println((a-1)*n+b+1, " = ", JuMP.value(y[(a-1)*(n)+b,(a-1)*n+b+1])," ")
-    println((a-1)*n+b+1, " inverse = ", JuMP.value(y[(a-1)*n+b+1,(a-1)*(n)+b])," ")
-    println((a-1)*n+b-1, " = ", JuMP.value(y[(a-1)*(n)+b,(a-1)*n+b-1])," ")
-    println("x[1,2,3] = ",JuMP.value(x[1,2,3]), " = ", JuMP.value(x[2,1,3]))
-    println((a-1)*n+b-1, " inverse = ", JuMP.value(y[(a-1)*n+b-1,(a-1)*(n)+b])," ")
-    println((a-2)*n+b, " = ", JuMP.value(y[(a-1)*(n)+b,(a-2)*n+b])," ")
-    println((a-2)*n+b, " inverse = ", JuMP.value(y[(a-2)*n+b,(a-1)*(n)+b])," ")
-    println((a)*n+b, " = ", JuMP.value(y[(a-1)*(n)+b,(a)*n+b])," ")
-    println((a)*n+b, " inverse = ", JuMP.value(y[(a)*n+b,(a-1)*(n)+b])," ")
+    ybis = Array{Int64}(zeros(n*p,n*p))
+    for i in 1:n*p
+        for j in 1:n*p
+            ybis[i,j] = JuMP.value(y[i,j])
+        end
+    end
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
-    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start, x,y
+    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start, x,ybis
 end
 
 """
@@ -150,34 +143,44 @@ Heuristically solve an instance
 function heuristicSolve(sizeR::Int64, t::Array{})
     n = size(t,1)
     m = size(t,2)
-    println(n)
     res = Array{Int64}(zeros(n,m))
     rsize = Array{Int64}(zeros(round(Int64,(n*m)/sizeR)))
     palisade = initPalisade(t)
-    println("palisade[3,2] : ", palisade[3,2])
+    println("palisade[5,4] : ", palisade[5,4])
     cpt=0
     while cpt<10
         memory = copy(res)
         res, rsize = firstFilling(rsize, palisade, res, sizeR)
         res, rsize = secondFilling(rsize, palisade, res, sizeR)
-        palisade = updatePalisade(rsize, palisade, res, memory, sizeR)
         res, rsize = notEnoughPalisade(res, palisade, rsize, sizeR)
         res, rsize = oneMoreCase(t,res, palisade, rsize, sizeR)
         res, rsize = isFreeSpace(res, rsize, sizeR)
-        #println("palisade[3,2] : ", palisade[3,2])
+        palisade = updatePalisade(rsize, palisade, res, memory, sizeR)
+        println("palisade[5,4] : ", palisade[5,4])
         cpt+=1
     end
     res, rsize = only1notEmpty(res, rsize, sizeR)
+
     println("nombre de case par région : ")
     for k in 1:size(rsize,1)
         println("region ", k, " : ", rsize[k], " case(s)")
     end
+
+    ###### Création de y pour l'affichage avec displaySolution() #######
+    y = Array{Int64}(zeros(n*m,n*m))
     for i in 1:n
         for j in 1:m
+            if j!= m && res[i,j]!= res[i,j+1]
+                y[(i-1)*(m)+j,(i-1)*(m)+j+1] = 1
+            end
             print(res[i,j]," ")
+            if i!=n && res[i,j]!= res[i+1,j]
+                y[(i-1)*(m)+j,(i)*(m)+j] = 1
+            end
         end
         println()
     end
+    return y
 end 
 
 """

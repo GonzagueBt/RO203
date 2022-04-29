@@ -17,7 +17,6 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     m = Model(CPLEX.Optimizer)
 
     ########### Variables ########### 
-
     # x[i, j] = 1 if cell i,j is a tent
     @variable(m, x[1:n, 1:p], Bin)
 
@@ -71,37 +70,28 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     end
 
     # 2 tents can not be next to each other or in diag
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j]<=1)
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j+1]<=1)
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j-1]<=1)
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j+1]<=1)
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j-1]<=1)
-    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j+1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i+1,j] + x[i+1,j-1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i-1,j] + x[i-1,j+1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j+1] + x[i+1,j+1]<=1)
+    @constraint(m, [i in 2:n-1, j in 2:p-1], x[i,j] + x[i,j-1] + x[i-1,j-1] <=1)
         #each side
-    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j]<=1)
-    @constraint(m, [j in 2:p-1], x[1,j] + x[1,j+1]<=1)
-    @constraint(m, [j in 2:p-1], x[1,j] + x[1,j-1]<=1)
-    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j+1]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[2,j] + x[1,j-1]<=1)
+    @constraint(m, [j in 2:p-1], x[1,j] + x[1,j+1] + x[2,j+1]<=1)
     @constraint(m, [j in 2:p-1], x[1,j] + x[2,j-1]<=1)
 
-    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j]<=1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j] + + x[n-1,j+1]<=1)
     @constraint(m, [j in 2:p-1], x[n,j] + x[n,j+1]<=1)
-    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j+1]<=1)
-    @constraint(m, [j in 2:p-1], x[n,j] + x[n-1,j-1]<=1)
+    @constraint(m, [j in 2:p-1], x[n,j] + x[n,j-1] + x[n-1,j-1]<=1)
 
-    @constraint(m, [i in 2:n-1], x[i,1] + x[i,2]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i,2] + x[i+1,2]<=1)
     @constraint(m, [i in 2:n-1], x[i,1] + x[i+1,1]<=1)
-    @constraint(m, [i in 2:n-1], x[i,1] + x[i-1,1]<=1)
-    @constraint(m, [i in 2:n-1], x[i,1] + x[i-1,2]<=1)
-    @constraint(m, [i in 2:n-1], x[i,1] + x[i+1,2]<=1)
+    @constraint(m, [i in 2:n-1], x[i,1] + x[i-1,1] + x[i-1,2]<=1)
     
-    @constraint(m, [i in 2:n-1], x[i,p] + x[i,p-1]<=1)
-    @constraint(m, [i in 2:n-1], x[i,p] + x[i+1,p]<=1)
-    @constraint(m, [i in 2:n-1], x[i,p] + x[i-1,p-1]<=1)
-    @constraint(m, [i in 2:n-1], x[i,p] + x[i+1,p-1]<=1)
-
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i,p-1] + x[i-1,p-1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i+1,p] + x[i+1,p-1]<=1)
+    @constraint(m, [i in 2:n-1], x[i,p] + x[i-1,p] <=1)
         # each angles
-    @constraint(m, x[1,1] + x[1,2] + x[2,1] + x[2,2]<=1)
+    @constraint(m, x[1,1] + x[1,2] + x[2,2]<=1)
     @constraint(m, x[1,1] + x[2,1] + x[2,2]<=1)
     @constraint(m, x[1,p] + x[1,p-1] + x[2,p-1]<=1)
     @constraint(m, x[1,p] + x[2,p] + x[2,p-1]<=1)
@@ -122,7 +112,6 @@ function cplexSolve(y::Vector{}, k::Vector{}, a::Array{})
     # 1 - true if an optimum is found
     # 2 - the resolution time
     # 3 - the binary variable x
-
     return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, tps, x
 end
 

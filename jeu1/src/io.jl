@@ -7,11 +7,10 @@ import GR
 function test()
     t,y,k,a = readInputFile("../data/instanceTest2.txt")
     include("resolution.jl")
-    #status, time, x = cplexSolve(y,k,a)
-    #displayGrid(t,y,k)
-    #displaySolution(y,k,t,x)
+    status, time, x = cplexSolve(y,k,a)
+    displayGrid(t,y,k)
+    displaySolution(y,k,t,x)
     include("resolution.jl")
-    generateInstance(5)
     #return a
 end
 
