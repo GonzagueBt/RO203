@@ -58,96 +58,94 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
         if (a!=1 && a!= x && b!= 1 && b!=y)
             # Look at all 4 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -156,14 +154,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -171,14 +172,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -186,14 +190,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -201,14 +208,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -216,12 +222,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -230,14 +236,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -245,14 +254,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -260,14 +272,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -275,14 +290,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -290,12 +304,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -304,14 +318,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -319,14 +336,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -334,14 +354,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -349,14 +372,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -369,14 +391,14 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
 
         elseif (a==1 && a!= x && b!= 1 && b!=y) # edge 1
-            # Look at all 3 neighboring squares and find another region to exange tiles wit            
+            # Look at all 3 neighboring squares and find another region to exange tiles with
             if (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -385,14 +407,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -400,14 +425,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -415,14 +443,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -430,14 +461,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -445,12 +475,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -459,14 +489,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -474,14 +507,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -489,14 +525,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -504,14 +543,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -519,12 +557,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -533,14 +571,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -548,14 +589,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -563,14 +607,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -578,14 +625,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -594,102 +640,101 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             else
             end
+            
 
 
             
         elseif (a!=1 && a== x && b!= 1 && b!=y) # edge 2
             # Look at all 3 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -698,14 +743,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -713,14 +761,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -728,14 +779,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -743,14 +797,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -758,12 +811,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -772,14 +825,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -787,14 +843,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -802,14 +861,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -817,14 +879,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -835,100 +896,98 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
             end
 
 
-            
+
         elseif (a!=1 && a!= x && b== 1 && b!=y) # edge 3
             # Look at all 3 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -937,14 +996,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -952,14 +1014,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -967,14 +1032,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -982,14 +1050,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -997,12 +1064,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -1011,14 +1078,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1026,14 +1096,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1041,14 +1114,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1056,14 +1132,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1073,101 +1148,99 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
             else
             end
 
-
+            
             
         elseif (a!=1 && a!= x && b!= 1 && b==y) # edge 4
             # Look at all 3 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -1176,14 +1249,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1191,14 +1267,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1206,14 +1285,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1221,14 +1303,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1236,12 +1317,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -1250,14 +1331,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1265,14 +1349,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1280,14 +1367,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1295,14 +1385,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1313,17 +1402,15 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
             end
 
 
-
-            
-        elseif (a==1 && a!= x && b== 1 && b!=y) # corner 1
+        elseif (a==1 && a!= x && b== 1 && b!=y) # corner 
             # Look at all 2 neighboring squares and find another region to exange tiles with
             if (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -1332,14 +1419,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1347,14 +1437,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1362,14 +1455,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1377,14 +1473,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1392,12 +1487,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -1406,14 +1501,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1421,14 +1519,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1436,14 +1537,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1451,14 +1555,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1467,18 +1570,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             else
             end
-
-
+            
             
         elseif (a==1 && a!= x && b!= 1 && b==y) # corner 2
             # Look at all 2 neighboring squares and find another region to exange tiles with
             if (grid[a+1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a+1,b])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a+1,b])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
@@ -1487,14 +1589,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1502,14 +1607,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1517,14 +1625,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a+1,b]
                                     grid[a,b]=grid[a+1,b]
                                     grid[a+1,b]=val
@@ -1532,14 +1643,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a+1,b]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1547,12 +1657,12 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -1561,14 +1671,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1576,14 +1689,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1591,14 +1707,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1606,14 +1725,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1622,103 +1740,99 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             else
             end
-
-
 
             
         elseif (a!=1 && a== x && b== 1 && b!=y) # corner 3
             # Look at all 2 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a,b+1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b+1])
+                    for j in 1:y                         
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b+1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
@@ -1727,14 +1841,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1742,14 +1859,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1757,14 +1877,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b+1]
                                     grid[a,b]=grid[a,b+1]
                                     grid[a,b+1]=val
@@ -1772,14 +1895,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b+1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1788,103 +1910,99 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             else
             end
-
-
-
+            
             
         elseif (a!=1 && a== x && b!= 1 && b==y) # corner 4
             # Look at all 2 neighboring squares and find another region to exange tiles with
             if (grid[a-1,b]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made                            
-                            # Find another square of new region that is also neighboring the first region                           
-                            if (grid[i,j]==grid[a-1,b])
-                                if (i!=1 && k!=temp+1)                                
-                                    if (grid[i-1,j]==val)                       
-                                        grid[i-1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i-1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
+                    for j in 1:y                                               
+                        # Find another square of new region that is also neighboring the first region                           
+                        if (grid[i,j]==grid[a-1,b])
+                            if (i!=1 && k!=temp+1)                                
+                                if (grid[i-1,j]==val)                       
+                                    grid[i-1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i-1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
                                     end
                                 end
-                                if (i!=x && k!=temp+1)
-                                    if (grid[i+1,j]==val)
-                                        grid[i+1,j]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i+1,j]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=1 && k!=temp+1)
-                                    if (grid[i,j-1]==val)
-                                        grid[i,j-1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j-1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end
-                                if (j!=y && k!=temp+1)
-                                    if (grid[i,j+1]==val)
-                                        grid[i,j+1]=grid[a-1,b]
-                                        grid[a,b]=grid[a-1,b]
-                                        grid[a-1,b]=val
-                                        grid[i,j]=val
-                                        k+=1
-                                        # Make sure this results in a configuration where the squares of each
-                                        # tile are still connected to each other (otherwise undo the modification).
-                                        if !isGridValid(grid)
-                                            grid[a-1,b]=grid[a,b]
-                                            grid[i,j]=grid[a,b]
-                                            grid[i,j+1]=val
-                                            grid[a,b]=val
-                                            k-=1
-                                        end
-                                    end
-                                end   
                             end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
+                                    grid[i+1,j]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i+1,j]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
+                                    grid[i,j-1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j-1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
+                                    grid[i,j+1]=grid[a-1,b]
+                                    grid[a,b]=grid[a-1,b]
+                                    grid[a-1,b]=val
+                                    grid[i,j]=val
+                                    k+=1
+                                    # Make sure this results in a configuration where the squares of each
+                                    # tile are still connected to each other (otherwise undo the modification).
+                                    if !isGridValid(grid,sizeR)
+                                        grid[a-1,b]=grid[a,b]
+                                        grid[i,j]=grid[a,b]
+                                        grid[i,j+1]=val
+                                        grid[a,b]=val
+                                        k-=1
+                                    end
+                                end
+                            end   
                         end
                     end
                 end
 
             elseif (grid[a,b-1]!=val)
+                temp=k
                 for i in 1:x
-                    for j in 1:y
-                        temp=k
-                        while (k!=temp+1) # while no exchange has been made 
-                            # Find another square of new region that is also neighboring the first region
-                            if (grid[i,j]==grid[a,b-1])
+                    for j in 1:y                        
+                        # Find another square of new region that is also neighboring the first region
+                        if (grid[i,j]==grid[a,b-1])
+                            if (i!=1 && k!=temp+1)
                                 if (grid[i-1,j]==val)                       
                                     grid[i-1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
@@ -1893,14 +2011,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i-1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i+1,j]==val)
+                                end
+                            end
+                            if (i!=x && k!=temp+1)
+                                if (grid[i+1,j]==val)
                                     grid[i+1,j]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1908,14 +2029,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i+1,j]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j-1]==val)
+                                end
+                            end
+                            if (j!=1 && k!=temp+1)
+                                if (grid[i,j-1]==val)
                                     grid[i,j-1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1923,14 +2047,17 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j-1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                elseif (grid[i,j+1]==val)
+                                end
+                            end
+                            if (j!=y && k!=temp+1)
+                                if (grid[i,j+1]==val)
                                     grid[i,j+1]=grid[a,b-1]
                                     grid[a,b]=grid[a,b-1]
                                     grid[a,b-1]=val
@@ -1938,14 +2065,13 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                     k+=1
                                     # Make sure this results in a configuration where the squares of each
                                     # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid)
+                                    if !isGridValid(grid,sizeR)
                                         grid[a,b-1]=grid[a,b]
                                         grid[i,j]=grid[a,b]
                                         grid[i,j+1]=val
                                         grid[a,b]=val
                                         k-=1
                                     end
-                                else
                                 end
                             end
                         end
@@ -1954,6 +2080,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             else
             end
+            
   
         end
 
@@ -1974,107 +2101,197 @@ Check that each tile is still connected to another of its region
 
 Argument
 - x: the grid to check
+- sizeR: size of regions
 """
 
-function isGridValid(x::Matrix{Int64})
-    (x,y)=size(x)
-    valid=true
+function isGridValid(grid::Matrix{Int64},sizeR::Int64)
+    (x,y)=size(grid)
+    res=true
 
     for i in 1:x
         for j in 1:y
-            s=0
+            coords = [(i,j)]           
             val = grid[i,j]
+            println(val)
             if (i!=1 && i!= x && j!= 1 && j!=y)
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end
             elseif (i==1 && i!= x && j!= 1 && j!=y) # edge 1
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end
             elseif (i!=1 && i== x && j!= 1 && j!=y) # edge 2
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end     
             elseif (i!=1 && i!= x && j== 1 && j!=y) # edge 3
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end                
             elseif (i!=1 && i!= x && j!= 1 && j==y) # edge 4
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end                
             elseif (i==1 && i!= x && j== 1 && j!=y) # corner 1
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end                
             elseif (i==1 && i!= x && j!= 1 && j==y) # corner 2
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end
                 if grid[i+1,j]==val
-                    s+=1
+                    push!(coords,(i+1,j))
                 end                
             elseif (i!=1 && i== x && j== 1 && j!=y) # corner 3
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j+1]==val
-                    s+=1
+                    push!(coords,(i,j+1))
                 end             
-            elseif (i!=1 && i== x && b!= 1 && b==y) # corner 4
+            elseif (i!=1 && i== x && j!= 1 && j==y) # corner 4
                 if grid[i-1,j]==val
-                    s+=1
+                    push!(coords,(i-1,j))
                 end
                 if grid[i,j-1]==val
-                    s+=1
+                    push!(coords,(i,j-1))
                 end             
             end
-            if s==0
-                valid=false
-            end                
+
+            (n,m)=size(coords)
+            for k in 1:n
+                if (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]!=y)
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end
+                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]!=y) # edge 1
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end
+                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]!= 1 && coords[k][2]!=y) # edge 2
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end
+                elseif (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]== 1 && coords[k][2]!=y) # edge 3
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end               
+                elseif (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]==y) # edge 4
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end           
+                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]== 1 && coords[k][2]!=y) # corner 1
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end             
+                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]==y) # corner 2
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end
+                    if grid[coords[k][1]+1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]+1,coords[k][2]))
+                    end
+                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]== 1 && coords[k][2]!=y) # corner 3
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]+1]==val
+                        push!(coords,(coords[k][1],coords[k][2]+1))
+                    end       
+                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]!= 1 && coords[k][2]==y) # corner 4
+                    if grid[coords[k][1]-1,coords[k][2]]==val
+                        push!(coords,(coords[k][1]-1,coords[k][2]))
+                    end
+                    if grid[coords[k][1],coords[k][2]-1]==val
+                        push!(coords,(coords[k][1],coords[k][2]-1))
+                    end       
+                end 
+            end
+
+            (s,t)=size(coords)
+            if s!=sizeR
+                res=false
+            end
                 
         end
 
     end
 
-    return valid
+    return res
 end
 
 
