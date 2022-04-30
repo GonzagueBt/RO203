@@ -12,7 +12,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
     density = 0.3
     # Nb of numbers displayed
-    n = trunc(Int,density*x*y)
+    n = trunc(Int,density*x*y)+2
 
     # Matrix representing regions
     grid = zeros(Int64, x, y)
@@ -54,10 +54,10 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
     while (k<modif)
         a = rand(1:x)
         b = rand(1:y)
-        println("a=",a)
-        println("b=",b)
-        println("k=",k)
-        println(grid)
+        #println("a=",a)
+        #println("b=",b)
+        #println("k=",k)
+        #println(grid)
 
         # Area nb "val" in coords a,b
         val=grid[a,b]
@@ -189,8 +189,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -396,8 +396,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -1722,20 +1722,103 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
 
             end
 
-            
-  
-        end
-
-
+        end        
     end
 
-    println(grid)
+    #println(grid)
 
+    for i in 1:n
+        a=rand(1:x)
+        b=rand(1:y)
+        s=0
+        if (a!=1 && a!= x && b!= 1 && b!=y)
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a==1 && a!= x && b!= 1 && b!=y) # edge 1
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a!=1 && a== x && b!= 1 && b!=y) # edge 2
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a!=1 && a!= x && b== 1 && b!=y) # edge 3
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a!=1 && a!= x && b!= 1 && b==y) # edge 4
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a==1 && a!= x && b== 1 && b!=y) # corner 1
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a==1 && a!= x && b!= 1 && b==y) # corner 2
+            if grid[a+1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a!=1 && a== x && b== 1 && b!=y) # corner 3
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b+1]!=grid[a,b]
+                s+=1
+            end
+        elseif (a!=1 && a==x && b!= 1 && b==y) # corner 4
+            if grid[a-1,b]!=grid[a,b]
+                s+=1
+            end
+            if grid[a,b-1]!=grid[a,b]
+                s+=1
+            end            
+        end
+        if s!=0
+            nb[a,b]=s
+        end
+    end
 
-
-
-
-
+    #println(nb)
     return grid
 end 
 
@@ -1810,9 +1893,23 @@ Generate all the instances
 Remark: a grid is generated only if the corresponding output file does not already exist
 """
 function generateDataSet()
-    
-    # TODO
-    println("In file generation.jl, in method generateDataSet(), TODO: generate an instance")
+    # For each grid size considered
+    for x in [4,5,6]
+        for y in [4,5,6]
+            if y<=x
+                # Generate 10 instances
+                for instance in 1:10
+
+                    fileName = "../data/instance_x" * string(x) * "_y" * string(y) * "_" * string(instance) * ".txt"
+
+                    if !isfile(fileName)
+                        println("-- Generating file " * fileName)
+                        saveInstance(generateInstance(x,x,x), x,fileName)
+                    end 
+                end
+            end
+        end
+    end
     
 end
 
