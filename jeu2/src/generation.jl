@@ -1819,7 +1819,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
     end
 
     #println(nb)
-    return grid
+    return nb
 end 
 
 """
