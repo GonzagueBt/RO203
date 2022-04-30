@@ -1832,12 +1832,13 @@ Argument
 
 function isGridValid(grid::Matrix{Int64},sizeR::Int64)
     (n,m)=size(grid)
-    regionDone = Array{Int64}(zeros(sizeR))
     nbR = round(Int64,(n*m)/sizeR) #number of region
+    regionDone = Array{Int64}(zeros(nbR))
     stop = 0
     for i in 1:n
         for j in 1:m
             k = grid[i,j]
+            # if the region already have been treated, it is not necessarily
             if regionDone[k]==1
                 continue
             end
@@ -1848,7 +1849,7 @@ function isGridValid(grid::Matrix{Int64},sizeR::Int64)
             if cpt!=sizeR
                 return false
             end
-            regionDone[grid[i,j]] = 1
+            regionDone[k] = 1
             stop+=1
             #if we have treated all regions, we don't need to continue the double loop : grid valid
             if stop==nbR
