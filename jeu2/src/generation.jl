@@ -1755,9 +1755,16 @@ function isGridValid(grid::Matrix{Int64},sizeR::Int64)
     for i in 1:n
         for j in 1:m
             k = grid[i,j]
+<<<<<<< HEAD
             #if regionDone[k]==1
             #    continue
             #end
+=======
+            # if the region already have been treated, it is not necessarily
+            if regionDone[k]==1
+                continue
+            end
+>>>>>>> 700310da05f65c3f159a5aec9c8e9b5cedcec967
             visited = Array{Int64}(zeros(n,m))
             visited[i,j] =1
             visited, cpt = recursivePlace(grid,visited,k,i,j,1)
