@@ -1895,7 +1895,7 @@ Remark: a grid is generated only if the corresponding output file does not alrea
 function generateDataSet()
     # For each grid size considered
     for x in [4,5,6]
-        for y in [4,5,6]
+        for y in [4,5]
             if y<=x
                 # Generate 10 instances
                 for instance in 1:10
@@ -1910,6 +1910,14 @@ function generateDataSet()
             end
         end
     end
+
+    # 6x6
+    fileName = "../data/instance_x6_y6.txt"
+
+    if !isfile(fileName)
+        println("-- Generating file " * fileName)
+        saveInstance(generateInstance(6,6,6),6,fileName)
+    end 
     
 end
 
