@@ -12,12 +12,12 @@ function Palisade(inputFile::String="", method::String="")
     end
     sizeR, t = readInputFile(inputFile)
     if method=="" || method=="S"
-        Opt, time, x,y = cplexSolve(sizeR, t)
+        Opt, time, x = cplexSolve(sizeR, t)
     elseif method=="H"
-        y = heuristicSolve(sizeR, t)
+        x = heuristicSolve(sizeR, t)
     end
     displayGrid(t)
-    displaySolution(t,y)
+    displaySolution(t,x)
 end
 
 """
@@ -103,6 +103,12 @@ end
 function displaySolution(t::Array{},x::Array{})
     n = size(t,1)
     m = size(t,2)
+    for i in 1:n
+        for j in 1:m
+            print(x[i,j], " ")
+        end
+        println()
+    end
     print("-")
     for j in 1:m-1
         print("--")
@@ -116,7 +122,7 @@ function displaySolution(t::Array{},x::Array{})
             else
                 print(" ")
             end
-            if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+            if x[i,j]!=x[i,j+1]
                 print("|")
             else
                 print(" ")
@@ -131,20 +137,18 @@ function displaySolution(t::Array{},x::Array{})
         if i!=n
             print("|")
             for j in 1:m-1
-                if x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL 
+                if x[i,j]!=x[i+1,j]
                     print("-")
                 else
                     print(" ")
                 end
-                if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+                if  x[i,j]!=x[i,j+1]
                     print("|")
-                elseif (x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL) && (x[(i-1)*(m)+j+1,(i)*(m)+j+1] > TOL || x[(i)*(m)+j+1,(i-1)*(m)+j+1]  > TOL)
-                    print("-")
                 else
                     print(" ")
                 end
             end
-            if x[(i-1)*(m)+m,i*(m)+m] > TOL || x[i*(m)+m,(i-1)*(m)+m] > TOL 
+            if  x[i,m]!=x[i+1,m]
                 print("-")
             else
                 print(" ")

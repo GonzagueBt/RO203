@@ -53,10 +53,6 @@ function cplexSolve(sizeR::Int64, t::Array{})
         @constraint(m, y[n*(p-1)+1,n*(p-1)+2] + y[n*(p-1)+2,n*(p-1)+1] + y[n*(p-1)+1,n*(p-2)+1] + y[n*(p-2)+1,n*(p-1)+1] + 2 == t[n,1])
     end
 
-    #No palisade between 2 case from opposite side 
-    #@constraint(m, [i in 2:n-1], y[i*(p)+1, i*(p)]==0)
-    #@constraint(m, [i in 2:n-1], y[i*(p), i*(p)+1]==0)
-
     # 4 - a case of a region always has at least one neighboord which belong to the same region
     @constraint(m, [i in 2:n-1, j in 2:p-1, k in 1:nbR; sizeR>1],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] >= x[i,j,k])
     @constraint(m, [i in 3:n-2, j in 3:p-2, k in 1:nbR; sizeR>=5],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] + x[i,j+2,k] + x[i,j-2,k] + x[i+2,j,k] + x[i-2,j,k] + x[i+1,j+1,k] + x[i-1,j-1,k] + x[i-1,j+1,k] + x[i+1,j-1,k]>= x[i,j,k]*3)
@@ -97,43 +93,41 @@ function cplexSolve(sizeR::Int64, t::Array{})
 
 
 
-    for i in 1:n
-        for j in 1:p
-            @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= sizeR-1 )
-        end
-    end
+    #for i in 1:n
+    #    for j in 1:p
+    #        @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= sizeR-1 )
+    #    end
+    #end
 
     # 5 - there exist a palisade between case i and j if there are not in the same region
     @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j]  + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
     @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + y[(i)*p+j,(i-1)*p+j]  + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
-        
+     
+    #@objective(m, Min, sum(x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b)) for a in 1:n for b in 1:p for i in 1:n for j in 1:p for k in 1:sizeR))
+
     # Start a chronometer
     start = time()
 
     # Solve the model
     optimize!(m)
+
+    execTime = time() - start
+
+    xbis = Array{Int64}(zeros(n,p))
     for i in 1:n
         for j in 1:p
             for k in 1:nbR
-                if JuMP.value(x[i,j,k])> TOL
-                    print(k," ")
+                if JuMP.value(x[i,j,k])==1
+                    xbis[i,j]=k
                 end
             end
         end
         println()
     end
-    ybis = Array{Int64}(zeros(n*p,n*p))
-    for i in 1:n*p
-        for j in 1:n*p
-            if JuMP.value(y[i,j])==1
-                ybis[i,j] = JuMP.value(y[i,j])
-            end
-        end
-    end
     # Return:
     # 1 - true if an optimum is found
     # 2 - the resolution time
-    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, time() - start, x,ybis
+    return JuMP.primal_status(m) == JuMP.MathOptInterface.FEASIBLE_POINT, execTime, xbis
 end
 
 """
@@ -165,21 +159,7 @@ function heuristicSolve(sizeR::Int64, t::Array{})
         println("region ", k, " : ", rsize[k], " case(s)")
     end
 
-    ###### Création de y pour l'affichage avec displaySolution() #######
-    y = Array{Int64}(zeros(n*m,n*m))
-    for i in 1:n
-        for j in 1:m
-            if j!= m && res[i,j]!= res[i,j+1]
-                y[(i-1)*(m)+j,(i-1)*(m)+j+1] = 1
-            end
-            print(res[i,j]," ")
-            if i!=n && res[i,j]!= res[i+1,j]
-                y[(i-1)*(m)+j,(i)*(m)+j] = 1
-            end
-        end
-        println()
-    end
-    return y
+    return res
 end 
 
 """
@@ -235,11 +215,11 @@ function solveDataSet()
                 if resolutionMethod[methodId] == "cplex"
                                         
                     # Solve it and get the results
-                    isOptimal, resolutionTime, x,y = cplexSolve(sizeR, t)
+                    isOptimal, resolutionTime, x = cplexSolve(sizeR, t)
                     
                     # If a solution is found, write it
                     if isOptimal
-                        writeSolution(fout,t,x,y)
+                        writeSolution(fout,t,x)
                     end
 
                 # If the method is one of the heuristics
@@ -257,7 +237,7 @@ function solveDataSet()
                         println("In file resolution.jl, in method solveDataSet(), TODO: fix heuristicSolve() arguments and returned values")
                         
                         # Solve it and get the results
-                        y = heuristicSolve(sizeR, t)
+                        x = heuristicSolve(sizeR, t)
 
                         # Stop the chronometer
                         resolutionTime = time() - startingTime
@@ -266,15 +246,13 @@ function solveDataSet()
 
                     # Write the solution (if any)
                     if isOptimal
-                        writeSolution(fout,t,x,y)
+                        writeSolution(fout,t,x)
                     end 
                 end
                 println(fout)
                 println(fout, "solveTime = ", resolutionTime) 
                 println(fout, "isOptimal = ", isOptimal)
                 
-                # TODO
-                println("In file resolution.jl, in method solveDataSet(), TODO: write the solution in fout") 
                 close(fout)
             end
 
@@ -295,20 +273,12 @@ Arguments
 - fout: the output stream (usually an output file)
 - t: 2-dimensional array of size n*n
 """
-function writeSolution(fout::IOStream,t::Array{},y::Array{VariableRef,3},x::Array{})
+function writeSolution(fout::IOStream,t::Array{},x::Array{})
     n = size(t,1)
     m = size(t,2)
     for i in 1:n
         for j in 1:m
-            isOk = false
-            k=1
-            while !isOk
-                if JuMP.value(y[i,j,k])> TOL
-                    print(fout,k," ")
-                    isOk = true
-                end
-                k+=1
-            end
+            print(fout,x[i,j], " ")
         end
         println(fout)
     end
@@ -325,7 +295,7 @@ function writeSolution(fout::IOStream,t::Array{},y::Array{VariableRef,3},x::Arra
             else
                 print(fout," ")
             end
-            if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+            if x[i,j]!=x[i,j+1]
                 print(fout,"|")
             else
                 print(fout," ")
@@ -340,18 +310,18 @@ function writeSolution(fout::IOStream,t::Array{},y::Array{VariableRef,3},x::Arra
         if i!=n
             print(fout,"|")
             for j in 1:m-1
-                if x[(i-1)*(m)+j,(i)*(m)+j] > TOL || x[(i)*(m)+j,(i-1)*(m)+j] > TOL 
+                if x[i,j]!=x[i+1,j] 
                     print(fout,"-")
                 else
                     print(fout," ")
                 end
-                if x[(i-1)*(m)+j,(i-1)*(m)+j+1] > TOL || x[(i-1)*(m)+j+1,(i-1)*(m)+j] > TOL
+                if  x[i,j]!=x[i,j+1]
                     print(fout,"|")
                 else
                     print(fout," ")
                 end
             end
-            if x[(i-1)*(m)+m,i*(m)+m] > TOL || x[i*(m)+m,(i-1)*(m)+m] > TOL 
+            if  x[i,m]!=x[i+1,m]
                 print(fout,"-")
             else
                 print(fout," ")
