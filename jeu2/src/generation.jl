@@ -1745,6 +1745,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a==1 && a!= x && b!= 1 && b!=y) # edge 1
+            s+=1
             if grid[a+1,b]!=grid[a,b]
                 s+=1
             end
@@ -1755,6 +1756,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a!=1 && a== x && b!= 1 && b!=y) # edge 2
+            s+=1
             if grid[a-1,b]!=grid[a,b]
                 s+=1
             end
@@ -1765,6 +1767,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a!=1 && a!= x && b== 1 && b!=y) # edge 3
+            s+=1
             if grid[a-1,b]!=grid[a,b]
                 s+=1
             end
@@ -1775,6 +1778,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a!=1 && a!= x && b!= 1 && b==y) # edge 4
+            s+=1
             if grid[a-1,b]!=grid[a,b]
                 s+=1
             end
@@ -1785,6 +1789,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a==1 && a!= x && b== 1 && b!=y) # corner 1
+            s+=2
             if grid[a+1,b]!=grid[a,b]
                 s+=1
             end
@@ -1792,6 +1797,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a==1 && a!= x && b!= 1 && b==y) # corner 2
+            s+=2
             if grid[a+1,b]!=grid[a,b]
                 s+=1
             end
@@ -1799,6 +1805,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a!=1 && a== x && b== 1 && b!=y) # corner 3
+            s+=2
             if grid[a-1,b]!=grid[a,b]
                 s+=1
             end
@@ -1806,6 +1813,7 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                 s+=1
             end
         elseif (a!=1 && a==x && b!= 1 && b==y) # corner 4
+            s+=2
             if grid[a-1,b]!=grid[a,b]
                 s+=1
             end
