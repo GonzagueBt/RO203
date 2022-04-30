@@ -2105,193 +2105,59 @@ Argument
 """
 
 function isGridValid(grid::Matrix{Int64},sizeR::Int64)
-    (x,y)=size(grid)
-    res=true
-
-    for i in 1:x
-        for j in 1:y
-            coords = [(i,j)]           
-            val = grid[i,j]
-            println(val)
-            if (i!=1 && i!= x && j!= 1 && j!=y)
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end
-            elseif (i==1 && i!= x && j!= 1 && j!=y) # edge 1
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end
-            elseif (i!=1 && i== x && j!= 1 && j!=y) # edge 2
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end     
-            elseif (i!=1 && i!= x && j== 1 && j!=y) # edge 3
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end                
-            elseif (i!=1 && i!= x && j!= 1 && j==y) # edge 4
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end                
-            elseif (i==1 && i!= x && j== 1 && j!=y) # corner 1
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end                
-            elseif (i==1 && i!= x && j!= 1 && j==y) # corner 2
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end
-                if grid[i+1,j]==val
-                    push!(coords,(i+1,j))
-                end                
-            elseif (i!=1 && i== x && j== 1 && j!=y) # corner 3
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j+1]==val
-                    push!(coords,(i,j+1))
-                end             
-            elseif (i!=1 && i== x && j!= 1 && j==y) # corner 4
-                if grid[i-1,j]==val
-                    push!(coords,(i-1,j))
-                end
-                if grid[i,j-1]==val
-                    push!(coords,(i,j-1))
-                end             
+    (n,m)=size(grid)
+    regionDone = Array{Int64}(zeros(sizeR))
+    nbR = round(Int64,(n*m)/sizeR) #number of region
+    stop = 0
+    for i in 1:n
+        for j in 1:m
+            k = grid[i,j]
+            if regionDone[k]==1
+                continue
             end
-
-            (n,m)=size(coords)
-            for k in 1:n
-                if (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]!=y)
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end
-                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]!=y) # edge 1
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end
-                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]!= 1 && coords[k][2]!=y) # edge 2
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end
-                elseif (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]== 1 && coords[k][2]!=y) # edge 3
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end               
-                elseif (coords[k][1]!=1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]==y) # edge 4
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end           
-                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]== 1 && coords[k][2]!=y) # corner 1
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end             
-                elseif (coords[k][1]==1 && coords[k][1]!= x && coords[k][2]!= 1 && coords[k][2]==y) # corner 2
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end
-                    if grid[coords[k][1]+1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]+1,coords[k][2]))
-                    end
-                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]== 1 && coords[k][2]!=y) # corner 3
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]+1]==val
-                        push!(coords,(coords[k][1],coords[k][2]+1))
-                    end       
-                elseif (coords[k][1]!=1 && coords[k][1]== x && coords[k][2]!= 1 && coords[k][2]==y) # corner 4
-                    if grid[coords[k][1]-1,coords[k][2]]==val
-                        push!(coords,(coords[k][1]-1,coords[k][2]))
-                    end
-                    if grid[coords[k][1],coords[k][2]-1]==val
-                        push!(coords,(coords[k][1],coords[k][2]-1))
-                    end       
-                end 
+            visited = Array{Int64}(zeros(n,m))
+            visited[i,j] =1
+            visited, cpt = recursivePlace(grid,visited,k,i,j,1)
+            #if the number of neighbouring cases of region k is not equal to the size of each region : grid not valid
+            if cpt!=sizeR
+                return false
             end
-
-            (s,t)=size(coords)
-            if s!=sizeR
-                res=false
+            regionDone[grid[i,j]] = 1
+            stop+=1
+            #if we have treated all regions, we don't need to continue the double loop : grid valid
+            if stop==nbR
+                return true 
             end
-                
         end
-
     end
+    return false
+end
 
-    return res
+function recursivePlace(res::Array{}, visited::Array{}, region::Int64, i::Int64, j::Int64, cpt::Int64)
+    n = size(res,1)
+    m = size(res,2)
+
+    if i!=n && res[i+1,j]==region && visited[i+1,j]==0
+        visited[i+1,j]=1
+        cpt+=1
+        visited, cpt = recursivePlace(res, visited,k,i+1, j, cpt)
+    end
+    if j!=m && res[i,j+1]==region && visited[i,j+1]==0
+        visited[i,j+1]=1
+        cpt+=1
+        visited, cpt = recursivePlace(res, visited,k,i, j+1, cpt)
+    end
+    if i!=1 && res[i-1,j]==region && visited[i-1,j]==0
+        visited[i-1,j]=1
+        cpt+=1
+        visited, cpt = recursivePlace(res, visited,k,i-1, j, cpt)
+    end
+    if j!=1 && res[i,j-1]==region && visited[i,j-1]==0
+        visited[i,j-1]=1
+        cpt+=1
+        visited, cpt = recursivePlace(res, visited,k,i, j-1, cpt)
+    end
+    return visited, cpt
 end
 
 
