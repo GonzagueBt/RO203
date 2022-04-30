@@ -1749,22 +1749,15 @@ Argument
 
 function isGridValid(grid::Matrix{Int64},sizeR::Int64)
     (n,m)=size(grid)
+    regionDone = Array{Int64}(zeros(sizeR))
     nbR = round(Int64,(n*m)/sizeR) #number of region
-    regionDone = Array{Int64}(zeros(nbR))
     stop = 0
     for i in 1:n
         for j in 1:m
             k = grid[i,j]
-<<<<<<< HEAD
-            #if regionDone[k]==1
-            #    continue
-            #end
-=======
-            # if the region already have been treated, it is not necessarily
             if regionDone[k]==1
                 continue
             end
->>>>>>> 700310da05f65c3f159a5aec9c8e9b5cedcec967
             visited = Array{Int64}(zeros(n,m))
             visited[i,j] =1
             visited, cpt = recursivePlace(grid,visited,k,i,j,1)
@@ -1772,7 +1765,7 @@ function isGridValid(grid::Matrix{Int64},sizeR::Int64)
             if cpt!=sizeR
                 return false
             end
-            regionDone[k] = 1
+            regionDone[grid[i,j]] = 1
             stop+=1
             #if we have treated all regions, we don't need to continue the double loop : grid valid
             if stop==nbR
