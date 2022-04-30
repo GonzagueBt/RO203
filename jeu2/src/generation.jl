@@ -2140,22 +2140,22 @@ function recursivePlace(res::Array{}, visited::Array{}, region::Int64, i::Int64,
     if i!=n && res[i+1,j]==region && visited[i+1,j]==0
         visited[i+1,j]=1
         cpt+=1
-        visited, cpt = recursivePlace(res, visited,k,i+1, j, cpt)
+        visited, cpt = recursivePlace(res, visited,region,i+1, j, cpt)
     end
     if j!=m && res[i,j+1]==region && visited[i,j+1]==0
         visited[i,j+1]=1
         cpt+=1
-        visited, cpt = recursivePlace(res, visited,k,i, j+1, cpt)
+        visited, cpt = recursivePlace(res, visited,region,i, j+1, cpt)
     end
     if i!=1 && res[i-1,j]==region && visited[i-1,j]==0
         visited[i-1,j]=1
         cpt+=1
-        visited, cpt = recursivePlace(res, visited,k,i-1, j, cpt)
+        visited, cpt = recursivePlace(res, visited,region,i-1, j, cpt)
     end
     if j!=1 && res[i,j-1]==region && visited[i,j-1]==0
         visited[i,j-1]=1
         cpt+=1
-        visited, cpt = recursivePlace(res, visited,k,i, j-1, cpt)
+        visited, cpt = recursivePlace(res, visited,region,i, j-1, cpt)
     end
     return visited, cpt
 end
