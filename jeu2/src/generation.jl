@@ -1912,7 +1912,7 @@ function generateDataSet()
 
                     if !isfile(fileName)
                         println("-- Generating file " * fileName)
-                        saveInstance(generateInstance(x,y,x),x,fileName)
+                        saveInstance(generateInstance(x,y,y),y,fileName)
                     end 
                 end
             end
