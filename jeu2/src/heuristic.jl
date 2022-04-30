@@ -342,11 +342,10 @@ function isFreeSpace(res::Array{}, rsize::Array{}, sizeR::Int64)
     end
     n = size(res,1)
     m = size(res,2)
+    done = false
+    k,l = 0,0
     for i in 1:n
         for j in 1:m
-            #if i*j> n*m-sizeR
-            #    break
-            #end
             if res[i,j]!=0
                 continue
             end
@@ -354,8 +353,12 @@ function isFreeSpace(res::Array{}, rsize::Array{}, sizeR::Int64)
             visited[i,j] =1
             visited, cpt = recursivePlace(res,visited,i, j,1)
             if cpt!=sizeR
+                if cpt>= sizeR && checkEligibilityNewRegion(res, rsize, sizeR, i,j)
+                    k,l = i,j
+                end
                 continue
             end
+            done = true
             for a in 1:n
                 for b in 1:n
                     if visited[a,b]==1
@@ -364,6 +367,13 @@ function isFreeSpace(res::Array{}, rsize::Array{}, sizeR::Int64)
                 end
             end
             rsize[reg] = sizeR
+        end
+    end
+    if !done && k!=0
+        region = findEmptyRegion(rsize)
+        if region!=0
+            res[k,l] = region
+            rsize[region] +=1
         end
     end
     return res, rsize             
@@ -457,10 +467,6 @@ function oneMoreCase(t::Array{},res::Array{}, palisade::Array{}, rsize::Array{},
                     b+=1
                     cpt = howmanyNeighbor(res, i, j+1, k, 3)
                 end
-                if i==2 && j==2 
-                    println(palisade[3,2])
-                    println(cpt)
-                end
                 cpt2 = howmanyNeighbor(res, i, j, k, 0) 
                 if cpt==initPalisade(t)[a,b] && cpt2!=initPalisade(t)[i,j]
                     res[a,b]=k
@@ -515,4 +521,25 @@ function only1notEmpty(res::Array{}, rsize::Array{}, sizeR::Int64)
         end
     end
     return res, rsize
+end
+
+function checkEligibilityNewRegion(res::Array{}, rsize::Array{}, sizeR::Int64, i::Int64, j::Int64)
+    n = size(res,1)
+    m = size(res,2)
+    for a in 1:sizeR-1
+        # if case (i-1,j) existn and don't have a not full region too close of it (distance less than sizeR)
+        if i-a>0 && res[i-a,j]!=0 && rsize[res[i-a,j]]!=sizeR
+            return false
+        end
+        if i+a<=n && res[i+a,j]!=0 && rsize[res[i+a,j]]!=sizeR
+            return false
+        end
+        if j-a>0 && res[i,j-a]!=0 && rsize[res[i,j-a]]!=sizeR
+            return false
+        end
+        if j+a<=m && res[i,j+a]!=0 && rsize[res[i,j+a]]!=sizeR
+            return false
+        end
+    end
+    return true
 end
