@@ -53,6 +53,7 @@ function cplexSolve(sizeR::Int64, t::Array{})
         @constraint(m, y[n*(p-1)+1,n*(p-1)+2] + y[n*(p-1)+2,n*(p-1)+1] + y[n*(p-1)+1,n*(p-2)+1] + y[n*(p-2)+1,n*(p-1)+1] + 2 == t[n,1])
     end
 
+    
     # 4 - a case of a region always has at least one neighboord which belong to the same region
     @constraint(m, [i in 2:n-1, j in 2:p-1, k in 1:nbR; sizeR>1],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] >= x[i,j,k])
         #each side 
@@ -66,39 +67,6 @@ function cplexSolve(sizeR::Int64, t::Array{})
     @constraint(m,[k in 1:nbR; sizeR>1], x[n,2,k] + x[n-1,1,k] >= x[n,1,k])
     @constraint(m,[k in 1:nbR; sizeR>1], x[1,p-1,k] + x[2,p,k] >= x[1,p,k])
 
-    # 5 - a case of a region have at least 2 cases from the same region in it neighbors and the neighbor of it neighbors
-
-    @constraint(m, [i in 3:n-2, j in 3:p-2, k in 1:nbR; sizeR>=5],  x[i,j+1,k] + x[i,j-1,k] + x[i+1,j,k] + x[i-1,j,k] + x[i,j+2,k] + x[i,j-2,k] + x[i+2,j,k] + x[i-2,j,k] + x[i+1,j+1,k] + x[i-1,j-1,k] + x[i-1,j+1,k] + x[i+1,j-1,k]>= x[i,j,k]*2)
-    
-    @constraint(m, [j in 3:p-2, k in 1:nbR; sizeR>3],  x[2,j+1,k] + x[2,j-1,k] + x[3,j,k] + x[2,j-2,k] + x[2,j+2,k] + x[3,j-1,k] + x[3,j+1,k] + x[4,j,k] + x[1,j,k] + x[1,j-1,k] + x[1,j+1,k]>= x[2,j,k]*2)
-    @constraint(m, [j in 3:p-2, k in 1:nbR; sizeR>3],  x[n-1,j+1,k] + x[n-1,j-1,k] + x[n-2,j,k] + x[n-1,j-2,k] + x[n-1,j+2,k] + x[n-2,j-1,k] + x[n-2,j+1,k] + x[n-3,j,k] + x[n,j,k] + x[n,j-1,k] + x[n,j+1,k]>= x[n-1,j,k]*2)
-    @constraint(m, [i in 3:n-2, k in 1:nbR; sizeR>3],  x[i+1,2,k] + x[i-1,2,k] + x[i,3,k] + x[i+2,2,k] + x[i-2,2,k] + x[i,4,k] + x[i+1,3,k] + x[i-1,3,k] + x[i,1,k] + x[i-1,1,k] + x[i+1,1,k]>= x[i,2,k]*2)
-    @constraint(m, [i in 3:n-2, k in 1:nbR; sizeR>3],  x[i+1,p-1,k] + x[i-1,p-1,k] + x[i,p-2,k] + x[i+2,p-1,k] + x[i-2,p-1,k] + x[i,p-3,k] + x[i+1,p-2,k] + x[i-1,p-2,k] + x[i,p,k] + x[i-1,p,k] + x[i+1,p,k]>= x[i,p-1,k]*2)
-        #each side 
-    @constraint(m, [j in 3:p-2, k in 1:nbR; sizeR>3],  x[1,j+1,k] + x[1,j-1,k] + x[2,j,k] + x[1,j-2,k] + x[1,j+2,k] + x[2,j-1,k] + x[2,j+1,k] + x[3,j,k]>= x[1,j,k]*2)
-    @constraint(m, [j in 3:p-2, k in 1:nbR; sizeR>3],  x[n,j+1,k] + x[n,j-1,k] + x[n-1,j,k] + x[n,j+2,k] + x[n,j-2,k] + x[n-1,j+1,k] + x[n-1,j-1,k] + x[n-2,j,k]>= x[n,j,k]*2)
-    @constraint(m, [i in 3:n-2, k in 1:nbR; sizeR>3],  x[i+1,1,k] + x[i-1,1,k] + x[i,2,k] + x[i+2,1,k] + x[i-2,1,k] + x[i,3,k] + x[i+1,2,k] + x[i-1,2,k] >= x[i,1,k]*2)
-    @constraint(m, [i in 3:n-2, k in 1:nbR; sizeR>3],  x[i+1,p,k] + x[i-1,p,k] + x[i,p-1,k] + x[i-2,p,k] + x[i+2,p,k] + x[i,p-2,k] + x[i-1,p-1,k] + x[i+1,p-1,k]>= x[i,p,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[1,1,k] + x[1,3,k] + x[1,4,k] + x[2,1,k] + x[2,2,k] + x[2,3,k] + x[3,1,k] >=x[1,2,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[1,1,k] + x[3,1,k] + x[4,1,k] + x[1,2,k] + x[2,2,k] + x[3,2,k] + x[2,3,k] >=x[2,1,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[1,p,k] + x[2,p-1,k] + x[1,p-2,k] + x[2,p,k] + x[2,p-2,k] + x[3,p-1,k] + x[1,p-3,k] >=x[1,p-1,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[1,p,k] + x[3,p,k] + x[2,p-1,k] + x[1,p-1,k] + x[3,p-1,k] + x[4,p,k] + x[2,p-2,k] >=x[2,p,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[n,1,k] + x[n-2,1,k] + x[n-1,2,k] + x[n-2,2,k] + x[n,2,k] + x[n-1,3,k] + x[n-3,1,k] >=x[n-1,1,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[n,1,k] + x[n,3,k] + x[n-1,2,k] + x[n-1,1,k] + x[n-1,3,k] + x[n-2,2,k] + x[n,4,k] >=x[n,2,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[n,p,k] + x[n,p-2,k] + x[n-1,p-1,k] + x[n-1,p,k] + x[n-1,p-2,k] + x[n,p-3,k] + x[n-2,p-1,k] >= x[n,p-1,k]*2)
-    @constraint(m, [k in 1:nbR, sizeR>3], x[n,p,k] + x[n-2,p,k] + x[n-1,p-1,k] + x[n,p-1,k] + x[n-2,p-1,k] + x[n-3,p,k] + x[n-1,p-2,k] >= x[n-1,p,k]*2)
-
-        #each angles 
-    @constraint(m,[k in 1:nbR; sizeR>1], x[1,2,k] + x[2,1,k] +  x[1,3,k] + x[3,1,k] + x[2,2,k]>= x[1,1,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[1,1,k] + x[1,2,k] + x[2,1,k] +  x[1,3,k] + x[3,1,k] + x[2,3,k] + x[3,2,k] + x[3,3,k] + x[4,2,k] + x[2,4,k]>= x[2,2,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[n,p-1,k] + x[n-1,p,k] + x[n,p-2,k] + x[n-2,p,k] + x[n-1,p-1,k]>= x[n,p,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[n,p,k] + x[n,p-1,k] + x[n-1,p,k] + x[n,p-2,k] + x[n-2,p,k] + x[n-1,p-2,k] + x[n-2,p-1,k] + x[n-2,p-2,k] + x[n-1,p-3,k] + x[n-3, p-1,k]>= x[n-1,p-1,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[n,2,k] + x[n-1,1,k] + x[n-2,1,k] + x[n,3,k] + x[n-1,2,k] >= x[n,1,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[n,1,k] + x[n,2,k] + x[n-1,1,k] + x[n-2,1,k] + x[n,3,k] + x[n-2,2,k] + x[n-2,3,k] + x[n-1,3,k] + x[n-1,4,k] + x[n-3,2,k]>= x[n-1,2,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[1,p,k] + x[1,p-1,k] + x[2,p,k] + x[1,p-2,k] + x[3,p,k] + x[2,p-1,k]>= x[1,p,k]*2)
-    @constraint(m,[k in 1:nbR; sizeR>1], x[1,p,k] + x[1,p-1,k] + x[2,p,k] + x[1,p-2,k] + x[3,p,k] + x[2,p-2,k] + x[3,p-1,k] + x[3,p-2,k] + x[4,p-1,k] + x[2,p-3,k]>= x[2,p-1,k]*2)
-
-
     # 5 - there exist a palisade between case i and j if there are not in the same region
     @constraint(m, [i in 1:n, j in 1:p-1], y[(i-1)*p+j,(i-1)*p+j+1] + y[(i-1)*p+j+1,(i-1)*p+j]  + sum(x[i,j,k]*x[i,j+1,k] for k in 1:nbR) == 1)
     @constraint(m, [i in 1:n-1, j in 1:p], y[(i-1)*p+j,(i)*p+j] + y[(i)*p+j,(i-1)*p+j]  + sum(x[i,j,k]*x[i+1,j,k] for k in 1:nbR) == 1)
@@ -106,8 +74,10 @@ function cplexSolve(sizeR::Int64, t::Array{})
     for i in 1:n
         for j in 1:p
             @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= sizeR-1 )
+            @constraint(m, [k in 1:nbR], sum( x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b)) for a in 1:n, b in 1:p) <= sum(l for l in 1:sizeR-1))
         end
     end
+
 
     # Start a chronometer
     start = time()
