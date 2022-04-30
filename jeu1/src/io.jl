@@ -143,7 +143,7 @@ end
 """
 Save a grid in a text file
 Argument
-- t: 2-dimensional array of size n*n
+- x: 2-dimensional array of size n*n
 - outputFile: path of the output file
 """
 function saveInstance(x, outputFile::String)

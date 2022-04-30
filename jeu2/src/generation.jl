@@ -27,11 +27,19 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
     # First, trivial valid tiling
     for k in 1:nbR
         for p in 1:sizeR
-            if mod((k-1)*sizeR+p,y)!=0
-                grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),mod((k-1)*sizeR+p,y)]=k
+            if mod(trunc(Int,ceil(((k-1)sizeR+p)/y)),2)==1
+                if mod((k-1)*sizeR+p,y)!=0
+                    grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),mod((k-1)*sizeR+p,y)]=k
+                else
+                    grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),y]=k
+                end
             else
-                grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),y]=k
-            end
+                if mod((k-1)*sizeR+p,y)!=0
+                    grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),y-mod((k-1)*sizeR+p,y)+1]=k
+                else
+                    grid[trunc(Int,ceil(((k-1)sizeR+p)/y)),1]=k
+                end
+            end 
         end
     end
     #println(grid)
@@ -57,2032 +65,1667 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
         # Squares if in a corner, on an edge, or not
         if (a!=1 && a!= x && b!= 1 && b!=y)
             # Look at all 4 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end   
-                        end
-                    end
-                end
-
-            elseif (grid[a+1,b]!=val)
-                temp=k
-                for i in 1:x
+            temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)                
+                for i in 1:x                   
                     for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                        if (i!=a-1 || j!=b)                                  
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
                                     end
-                                end
+                                end   
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            else
             end
+            if (grid[a+1,b]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if (grid[a,b-1]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if (grid[a,b+1]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
 
-
+            end
 
         elseif (a==1 && a!= x && b!= 1 && b!=y) # edge 1
             # Look at all 3 neighboring squares and find another region to exange tiles with
-            if (grid[a+1,b]!=val)
+            temp=k
+            if (grid[a+1,b]!=val && k!=temp+1)
                 temp=k
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            else
             end
-            
-
-
+            if (grid[a,b-1]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if (grid[a,b+1]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
             
         elseif (a!=1 && a== x && b!= 1 && b!=y) # edge 2
             # Look at all 3 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
+            temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y
+                        if (i!=a-1 || j!=b)                                        
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end   
                             end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end   
                         end
                     end
                 end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
+            end
+            if (grid[a,b-1]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
+            end
+            if (grid[a,b+1]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            else
             end
 
-
-
         elseif (a!=1 && a!= x && b== 1 && b!=y) # edge 3
+            temp=k
             # Look at all 3 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y
+                        if (i!=a-1 || j!=b)                                        
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end   
                             end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end   
                         end
                     end
                 end
-
-            elseif (grid[a+1,b]!=val)
-                temp=k
+            end
+            if (grid[a+1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
+            end
+            if (grid[a,b+1]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            else
             end
 
             
             
         elseif (a!=1 && a!= x && b!= 1 && b==y) # edge 4
+            temp=k
             # Look at all 3 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y
+                        if (i!=a-1 || j!=b)                                        
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end   
                             end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end   
                         end
                     end
                 end
-
-            elseif (grid[a+1,b]!=val)
-                temp=k
+            end
+            if (grid[a+1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
+            end
+            if (grid[a,b-1]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            else
             end
 
 
-        elseif (a==1 && a!= x && b== 1 && b!=y) # corner 
+        elseif (a==1 && a!= x && b== 1 && b!=y) # corner 1
+            temp=k
             # Look at all 2 neighboring squares and find another region to exange tiles with
-            if (grid[a+1,b]!=val)
-                temp=k
+            if (grid[a+1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            else
             end
+            if (grid[a,b+1]!=val && k!=temp+1)
+                for i in 1:x
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
             
             
         elseif (a==1 && a!= x && b!= 1 && b==y) # corner 2
+            temp=k
             # Look at all 2 neighboring squares and find another region to exange tiles with
-            if (grid[a+1,b]!=val)
-                temp=k
+            if (grid[a+1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a+1,b])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y  
+                        if (i!=a+1 || j!=b)                 
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a+1,b])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)         
+                                        grid[i-1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a+1,b]
-                                    grid[a,b]=grid[a+1,b]
-                                    grid[a+1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a+1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a+1,b]
+                                        grid[a+1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a+1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
-            else
             end
+            if (grid[a,b-1]!=val && k!=temp+1)
+                temp=k
+                for i in 1:x
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            
 
             
         elseif (a!=1 && a== x && b== 1 && b!=y) # corner 3
+            temp=k
             # Look at all 2 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y
+                        if (i!=a-1 || j!=b)                                        
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
                                     end
-                                end
-                            end   
-                        end
-                    end
-                end
-
-            elseif (grid[a,b+1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                         
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b+1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b+1]
-                                    grid[a,b]=grid[a,b+1]
-                                    grid[a,b+1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b+1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
+                                end   
                             end
                         end
                     end
                 end
-
-            else
             end
-            
+            if (grid[a,b+1]!=val && k!=temp+1)
+                temp=k
+                for i in 1:x
+                    for j in 1:y  
+                        if (i!=a || j!=b+1)                   
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b+1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)          
+                                        grid[i-1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i-1,j]
+                                            grid[i-1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b+1]
+                                        grid[a,b+1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b+1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+
             
         elseif (a!=1 && a== x && b!= 1 && b==y) # corner 4
+            temp=k
             # Look at all 2 neighboring squares and find another region to exange tiles with
-            if (grid[a-1,b]!=val)
-                temp=k
+            if (grid[a-1,b]!=val && k!=temp+1)
                 for i in 1:x
-                    for j in 1:y                                               
-                        # Find another square of new region that is also neighboring the first region                           
-                        if (grid[i,j]==grid[a-1,b])
-                            if (i!=1 && k!=temp+1)                                
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                    for j in 1:y
+                        if (i!=a-1 || j!=b)                                        
+                            # Find another square of new region that is also neighboring the first region                           
+                            if (grid[i,j]==grid[a-1,b])
+                                if (i!=1 && k!=temp+1)                                
+                                    if (grid[i-1,j]==val)  
+                                        grid[i-1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i-1,j]
+                                            grid[i-1,j]=val                                           
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i+1,j]
+                                            grid[i+1,j]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j-1]
+                                            grid[i,j-1]=val  
+                                            k-=1
+                                        end
                                     end
                                 end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a-1,b]
-                                    grid[a,b]=grid[a-1,b]
-                                    grid[a-1,b]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a-1,b]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a-1,b]
+                                        grid[a-1,b]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a-1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
+                                            k-=1
+                                        end
                                     end
-                                end
-                            end   
-                        end
-                    end
-                end
-
-            elseif (grid[a,b-1]!=val)
-                temp=k
-                for i in 1:x
-                    for j in 1:y                        
-                        # Find another square of new region that is also neighboring the first region
-                        if (grid[i,j]==grid[a,b-1])
-                            if (i!=1 && k!=temp+1)
-                                if (grid[i-1,j]==val)                       
-                                    grid[i-1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i-1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (i!=x && k!=temp+1)
-                                if (grid[i+1,j]==val)
-                                    grid[i+1,j]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i+1,j]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=1 && k!=temp+1)
-                                if (grid[i,j-1]==val)
-                                    grid[i,j-1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j-1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
-                            end
-                            if (j!=y && k!=temp+1)
-                                if (grid[i,j+1]==val)
-                                    grid[i,j+1]=grid[a,b-1]
-                                    grid[a,b]=grid[a,b-1]
-                                    grid[a,b-1]=val
-                                    grid[i,j]=val
-                                    k+=1
-                                    # Make sure this results in a configuration where the squares of each
-                                    # tile are still connected to each other (otherwise undo the modification).
-                                    if !isGridValid(grid,sizeR)
-                                        grid[a,b-1]=grid[a,b]
-                                        grid[i,j]=grid[a,b]
-                                        grid[i,j+1]=val
-                                        grid[a,b]=val
-                                        k-=1
-                                    end
-                                end
+                                end   
                             end
                         end
                     end
                 end
-
-            else
             end
+            if (grid[a,b-1]!=val && k!=temp+1)
+                temp=k
+                for i in 1:x
+                    for j in 1:y    
+                        if (i!=a-1 || j!=b)                  
+                            # Find another square of new region that is also neighboring the first region
+                            if (grid[i,j]==grid[a,b-1])
+                                if (i!=1 && k!=temp+1)
+                                    if (grid[i-1,j]==val)       
+                                        grid[i-1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i-1,j]
+                                            grid[i-1,j]=val  
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (i!=x && k!=temp+1)
+                                    if (grid[i+1,j]==val)
+                                        grid[i+1,j]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i+1,j]
+                                            grid[i+1,j]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=1 && k!=temp+1)
+                                    if (grid[i,j-1]==val)
+                                        grid[i,j-1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j-1]
+                                            grid[i,j-1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                                if (j!=y && k!=temp+1)
+                                    if (grid[i,j+1]==val)
+                                        grid[i,j+1]=grid[a,b-1]
+                                        grid[a,b-1]=val
+                                        k+=1
+                                        # Make sure this results in a configuration where the squares of each
+                                        # tile are still connected to each other (otherwise undo the modification).
+                                        if !isGridValid(grid,sizeR)
+                                            grid[a,b-1]=grid[i,j+1]
+                                            grid[i,j+1]=val 
+                                            k-=1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+            end
+
             
   
         end
+
 
     end
 
@@ -2112,9 +1755,9 @@ function isGridValid(grid::Matrix{Int64},sizeR::Int64)
     for i in 1:n
         for j in 1:m
             k = grid[i,j]
-            if regionDone[k]==1
-                continue
-            end
+            #if regionDone[k]==1
+            #    continue
+            #end
             visited = Array{Int64}(zeros(n,m))
             visited[i,j] =1
             visited, cpt = recursivePlace(grid,visited,k,i,j,1)
