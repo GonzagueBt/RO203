@@ -172,7 +172,7 @@ Argument
 """
 function saveInstance(x::Matrix{Int64}, sizeR::Int64, outputFile::String)
 
-    n = size(x, 1)
+    (n,m) = size(x)
 
     # Open the output file
     writer = open("RO203/jeu2/data/"*outputFile, "w")
@@ -180,9 +180,9 @@ function saveInstance(x::Matrix{Int64}, sizeR::Int64, outputFile::String)
     println(writer)
 
 	for i in 1:n
-		for j in 1:n
+		for j in 1:m
 			print(writer,x[i,j])
-			if(j<n)
+			if(j<m)
 				print(writer," ")
 			end
 		end

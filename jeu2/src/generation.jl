@@ -873,8 +873,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -1080,8 +1080,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -1219,8 +1219,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -1359,8 +1359,8 @@ function generateInstance(x::Int64, y::Int64, sizeR::Int64)
                                         # Make sure this results in a configuration where the squares of each
                                         # tile are still connected to each other (otherwise undo the modification).
                                         if !isGridValid(grid,sizeR)
-                                            grid[a+1,b]=grid[i,j-1]
-                                            grid[i,j-1]=val  
+                                            grid[a+1,b]=grid[i,j+1]
+                                            grid[i,j+1]=val  
                                             k-=1
                                         end
                                     end
@@ -1903,7 +1903,7 @@ function generateDataSet()
 
                     if !isfile(fileName)
                         println("-- Generating file " * fileName)
-                        saveInstance(generateInstance(x,x,x), x,fileName)
+                        saveInstance(generateInstance(x,y,x),x,fileName)
                     end 
                 end
             end
