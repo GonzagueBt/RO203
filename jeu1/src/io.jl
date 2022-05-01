@@ -10,7 +10,7 @@ function Tents(inputFile::String="")
     if inputFile==""
         inputFile="../data/instanceTest.txt"
     end
-    t,y,k,a = readInputFile("../data/instanceTest2.txt")
+    t,y,k,a = readInputFile(inputFile)
     status, time, x = cplexSolve(y,k,a)
     displayGrid(t,y,k)
     displaySolution(y,k,t,x)
