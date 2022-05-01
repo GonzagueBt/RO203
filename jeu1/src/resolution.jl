@@ -184,13 +184,7 @@ function solveDataSet()
                         n = size(t,1)
                         m = size(t,2)
                         println(fout, "t = [")
-                        #print(fout,string("-"))
-                        #for i in 1:m
-                        #    print(fout,string("-"))
-                        #end
-                        #println(fout,string("-"))
                         for i in 1:n
-                            #print(fout,string("|"))
                             print(fout,"[ ")
                             for j in 1:m
                                 if t[i,j] == 1
@@ -201,14 +195,8 @@ function solveDataSet()
                                     print(fout,string(0)*" ")
                                 end
                             end
-                            #print(fout,string("|"))
                             println(fout,string(k[i])*"];")
                         end
-                        #print(fout,string("-"))
-                        #for i in 1:m
-                        #    print(fout,string("-"))
-                        #end
-                        #println(fout,string("-"))
                         print(fout,"[ ")
                         for i in 1:m
                             print(fout,string(y[i])*" ")

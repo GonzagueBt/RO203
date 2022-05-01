@@ -1,5 +1,22 @@
 
-""" Initialisation palisade """
+"""
+Check if the solution of the instance is completed
+"""
+function instanceIsComplete(rsize::Array, sizeR::Int64)
+    for i in 1:size(rsize,1)
+        if rsize[i]!= sizeR
+            return false
+        end
+    end
+    return true
+end
+
+""" Initialisation palisade
+Create and initialize an array Palisade, which, for each case, indcates the number of palisade who can
+currently be set.
+if the value of the case i is equal to 0, that leans that all the neighbors of the case i are in the same
+region that i
+"""
 function initPalisade(t::Array{})
     n = size(t,1)
     m = size(t,2)
@@ -60,6 +77,10 @@ function initPalisade(t::Array{})
     return palisade
 end
 
+"""
+Take in argument a case (i,j), and look if it can be add to a region.
+To check that, the function check it neighbors (with addi, addj, addij, addji), they need to not be in an not full region
+"""
 function findRegion(rsize::Array{}, sizeR::Int64, res::Array{}, i::Int64, j::Int64, addi::Int64, addj::Int64, addij::Int64, addji::Int64)
     nbcase = 1
     n = size(res,1)
@@ -115,6 +136,9 @@ function findRegion(rsize::Array{}, sizeR::Int64, res::Array{}, i::Int64, j::Int
     return -1
 end
 
+"""
+Return a region which is yet empty
+"""
 function findEmptyRegion(rsize::Array{})
     for i in 1:size(rsize,1)
         if rsize[i]==0
@@ -123,24 +147,6 @@ function findEmptyRegion(rsize::Array{})
     end
     return 0
 end
-
-function addCaseToReg(res::Array{}, rsize::Array{},palisade::Array{}, region::Int64, i::Int64, j::Int64)
-    res[i,j] = region
-    rsize[region]+=1
-    if i!=1
-        palisade = up(res, memory,palisade,i, j,k)
-    end
-    if j!=1
-        palisade = left(res,memory, palisade,i, j,k)
-    end
-    if j!=m
-        palisade = right(res, memory,palisade,i, j,k)
-    end
-    if i!=n
-        palisade = down(res, memory,palisade,i, j,k)
-    end
-end
-
 
 
 function firstFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::Int64)
@@ -360,7 +366,7 @@ function isFreeSpace(res::Array{}, rsize::Array{}, sizeR::Int64)
             end
             done = true
             for a in 1:n
-                for b in 1:n
+                for b in 1:m
                     if visited[a,b]==1
                         res[a,b] = reg
                     end

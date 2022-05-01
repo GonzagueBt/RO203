@@ -109,6 +109,7 @@ end
 Heuristically solve an instance
 """
 function heuristicSolve(sizeR::Int64, t::Array{})
+    start = time()
     n = size(t,1)
     m = size(t,2)
     res = Array{Int64}(zeros(n,m))
@@ -124,9 +125,12 @@ function heuristicSolve(sizeR::Int64, t::Array{})
         res, rsize = isFreeSpace(res, rsize, sizeR)
         res, rsize = only1notEmpty(res, rsize, sizeR)
         palisade = updatePalisade(rsize, palisade, res, memory, sizeR)
+        if instanceIsComplete(rsize::Array, sizeR::Int64)
+            return time()-start, res
+        end
         cpt+=1
     end
-    return res
+    return time()-start, res
 end 
 
 """

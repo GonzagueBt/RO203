@@ -8,16 +8,17 @@ function Palisade(inputFile::String="", method::String="")
     include("resolution.jl")
     include("heuristic.jl")
     if inputFile==""
-        inputFile="../data/instanceTest.txt"
+        inputFile="../data/instance_exemple.txt"
     end
     sizeR, t = readInputFile(inputFile)
     if method=="" || method=="S"
         Opt, time, x = cplexSolve(sizeR, t)
     elseif method=="H"
-        x = heuristicSolve(sizeR, t)
+        time, x = heuristicSolve(sizeR, t)
     end
     displayGrid(t)
     displaySolution(t,x)
+    println("solveTime = ", time)
 end
 
 """
