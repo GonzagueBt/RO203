@@ -79,7 +79,7 @@ end
 
 """
 Take in argument a case (i,j), and look if it can be add to a region.
-To check that, the function check it neighbors (with addi, addj, addij, addji), they need to not be in an not full region
+To check that, the function check it neighbors (with addi, addj, addij, addji) :  they need to not be in an not full region
 """
 function findRegion(rsize::Array{}, sizeR::Int64, res::Array{}, i::Int64, j::Int64, addi::Int64, addj::Int64, addij::Int64, addji::Int64)
     nbcase = 1
@@ -148,7 +148,10 @@ function findEmptyRegion(rsize::Array{})
     return 0
 end
 
-
+"""
+Check all cases, if the case i is not yet in a region and can have 0 palisade, then we find a region k with findRegion, 
+and we add i and his neighbors to the region k (besause it can't have palisade between them, so there are in the same)
+"""
 function firstFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -225,6 +228,11 @@ function firstFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::In
     return res, rsize
 end
 
+
+"""
+This function is nearly like firstFillinf, but try to add neighbors of a case i which is already in a region and can't have
+other palisade (automatically, the region is not full)
+"""
 function secondFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -287,6 +295,10 @@ function secondFilling(rsize::Array{}, palisade::Array{}, res::Array{}, sizeR::I
     return res, rsize
 end
 
+"""
+if a region k is full, all cases of k with a neighbors in the region k can have one less possible palisade.
+Careful : this function is used only when the grid have been modify, otherwise, tis action will be done several times
+"""
 function updatePalisade(rsize::Array{}, palisade::Array{}, res::Array{}, memory::Array{}, sizeR::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -313,27 +325,30 @@ function updatePalisade(rsize::Array{}, palisade::Array{}, res::Array{}, memory:
     return palisade
 end
 
+""" 
+we check if the down neighbor of a case have changed since last time, 
+"""
 function down(res::Array{}, memory::Array{}, palisade::Array{},i::Int64, j::Int64, k::Int64)
     if res[i+1,j]==k && res[i+1,j]!=memory[i+1,j]
         palisade[i,j]-=1
     end
     return palisade
 end
-
+""" idem but up"""
 function up(res::Array{}, memory::Array{}, palisade::Array{},i::Int64, j::Int64, k::Int64)
     if res[i-1,j]==k && res[i-1,j]!=memory[i-1,j]
         palisade[i,j]-=1
     end
     return palisade
 end
-
+""" idem but right"""
 function right(res::Array{}, memory::Array{}, palisade::Array{},i::Int64, j::Int64, k::Int64)
     if res[i,j+1]==k && res[i,j+1]!=memory[i,j+1]
         palisade[i,j]-=1
     end
     return palisade
 end
-
+""" idem but left"""
 function left(res::Array{}, memory::Array{}, palisade::Array{},i::Int64, j::Int64, k::Int64)
     if res[i,j-1]==k && res[i,j-1]!=memory[i,j-1]
         palisade[i,j]-=1
@@ -341,6 +356,13 @@ function left(res::Array{}, memory::Array{}, palisade::Array{},i::Int64, j::Int6
     return palisade
 end
 
+
+"""
+This function calls the recursive function recursivePlace. It traverses the grid, if it finds a square not yet assigned 
+to a region, it will jump from neighbor to neighbor until it is blocked in all directions, 
+to count the number of "empty" squares side by side. If this number of squares is equal to the size of a region, 
+and a region has no squares yet, then we can add all the squares to this empty region
+"""
 function isFreeSpace(res::Array{}, rsize::Array{}, sizeR::Int64)
     reg = findEmptyRegion(rsize)
     if reg==0
@@ -411,6 +433,10 @@ function recursivePlace(res::Array{}, visited::Array{},i::Int64, j::Int64, cpt::
     return visited, cpt
 end
 
+"""
+if a case i have more neighbors from a same region k than it number of palisade remaining authorized, then the case i 
+must belong to region k
+"""
 function notEnoughPalisade(res::Array{}, palisade::Array{}, rsize::Array{}, sizeR::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -445,6 +471,65 @@ function notEnoughPalisade(res::Array{}, palisade::Array{}, rsize::Array{}, size
     return res, rsize
 end
 
+
+
+
+"""
+if there is only one region not full, we had all the remaining cases in this region
+"""
+function only1notEmpty(res::Array{}, rsize::Array{}, sizeR::Int64)
+    n = size(res,1)
+    m = size(res,2)
+    cpt=0
+    reg = 0
+    for k in 1:size(rsize,1)
+        if rsize[k]!= sizeR
+            cpt+=1
+            reg=k
+        end
+    end
+    if cpt!=1
+        return res, rsize
+    end 
+    for i in 1:n
+        for j in 1:m
+            if res[i,j]==0
+                res[i,j]=reg
+                rsize[reg]+=1
+            end
+        end
+    end
+    return res, rsize
+end
+
+"""
+used in isFreeSpace
+"""
+function checkEligibilityNewRegion(res::Array{}, rsize::Array{}, sizeR::Int64, i::Int64, j::Int64)
+    n = size(res,1)
+    m = size(res,2)
+    for a in 1:sizeR-1
+        # if case (i-1,j) exist and don't have a not full region too close of it (distance less than sizeR)
+        if i-a>0 && res[i-a,j]!=0 && rsize[res[i-a,j]]!=sizeR
+            return false
+        end
+        if i+a<=n && res[i+a,j]!=0 && rsize[res[i+a,j]]!=sizeR
+            return false
+        end
+        if j-a>0 && res[i,j-a]!=0 && rsize[res[i,j-a]]!=sizeR
+            return false
+        end
+        if j+a<=m && res[i,j+a]!=0 && rsize[res[i,j+a]]!=sizeR
+            return false
+        end
+    end
+    return true
+end
+
+"""
+if a case i of region k has a neighbor for which the number of it initial authorized palissade is equal to the number of
+    neighbor that are not in region k (but are in a region), then this case is added to region k
+"""
 function oneMoreCase(t::Array{},res::Array{}, palisade::Array{}, rsize::Array{}, sizeR::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -485,6 +570,9 @@ function oneMoreCase(t::Array{},res::Array{}, palisade::Array{}, rsize::Array{},
     return res, rsize
 end
 
+"""
+Count the number of neighbor of the case (i,j) in the region 'region'
+"""
 function howmanyNeighbor(res::Array{}, i::Int64, j::Int64, region::Int64, num::Int64)
     n = size(res,1)
     m = size(res,2)
@@ -502,50 +590,4 @@ function howmanyNeighbor(res::Array{}, i::Int64, j::Int64, region::Int64, num::I
         cpt+=1
     end
     return cpt
-end
-
-function only1notEmpty(res::Array{}, rsize::Array{}, sizeR::Int64)
-    n = size(res,1)
-    m = size(res,2)
-    cpt=0
-    reg = 0
-    for k in 1:size(rsize,1)
-        if rsize[k]!= sizeR
-            cpt+=1
-            reg=k
-        end
-    end
-    if cpt!=1
-        return res, rsize
-    end 
-    for i in 1:n
-        for j in 1:m
-            if res[i,j]==0
-                res[i,j]=reg
-                rsize[reg]+=1
-            end
-        end
-    end
-    return res, rsize
-end
-
-function checkEligibilityNewRegion(res::Array{}, rsize::Array{}, sizeR::Int64, i::Int64, j::Int64)
-    n = size(res,1)
-    m = size(res,2)
-    for a in 1:sizeR-1
-        # if case (i-1,j) existn and don't have a not full region too close of it (distance less than sizeR)
-        if i-a>0 && res[i-a,j]!=0 && rsize[res[i-a,j]]!=sizeR
-            return false
-        end
-        if i+a<=n && res[i+a,j]!=0 && rsize[res[i+a,j]]!=sizeR
-            return false
-        end
-        if j-a>0 && res[i,j-a]!=0 && rsize[res[i,j-a]]!=sizeR
-            return false
-        end
-        if j+a<=m && res[i,j+a]!=0 && rsize[res[i,j+a]]!=sizeR
-            return false
-        end
-    end
-    return true
 end
