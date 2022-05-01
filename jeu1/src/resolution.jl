@@ -5,6 +5,17 @@ include("generation.jl")
 
 TOL = 0.00001
 
+
+function Tents(inputFile::String="")
+    if inputFile==""
+        inputFile="../data/instance_test_taille.txt"
+    end
+    t,y,k,a = readInputFile(inputFile)
+    status, time, x = cplexSolve(y,k,a)
+    displayGrid(t,y,k)
+    displaySolution(y,k,t,x)
+end
+
 """
 Solve an instance with CPLEX
 """
