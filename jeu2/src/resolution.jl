@@ -73,7 +73,9 @@ function cplexSolve(sizeR::Int64, t::Array{})
      
     for i in 1:n
         for j in 1:p
+            # 6 - the distance between 2 cases of a same region is lower than sizeR-1
             @constraint(m, [a in 1:n, b in 1:p, k in 1:nbR; a!=i && b!=j], x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b))<= sizeR-1 )
+            # 7 - the sum of distance betwean a case of a region with all other cases from the same region is lower or equal to the sum of k in 1:sizeR-1
             @constraint(m, [k in 1:nbR], sum( x[i,j,k]*x[a,b,k]*(abs(i-a)+abs(j-b)) for a in 1:n, b in 1:p) <= sum(l for l in 1:sizeR-1))
         end
     end
@@ -124,12 +126,6 @@ function heuristicSolve(sizeR::Int64, t::Array{})
         palisade = updatePalisade(rsize, palisade, res, memory, sizeR)
         cpt+=1
     end
-
-    println("nombre de case par région : ")
-    for k in 1:size(rsize,1)
-        println("region ", k, " : ", rsize[k], " case(s)")
-    end
-
     return res
 end 
 
@@ -207,7 +203,7 @@ function solveDataSet()
                         
                         # Solve it and get the results
                         x = heuristicSolve(sizeR, t)
-                        isOptimal=true
+                        isOptimal=false
                         # Stop the chronometer
                         resolutionTime = time() - startingTime
                         
@@ -245,61 +241,18 @@ Arguments
 function writeSolution(fout::IOStream,t::Array{},x::Array{})
     n = size(t,1)
     m = size(t,2)
-    for i in 1:n
+    println(fout,"t=[")
+    for i in 1:n-1
+        print(fout,"[")
         for j in 1:m
             print(fout,x[i,j], " ")
         end
-        println(fout)
+        println(fout,"];")
     end
-    print(fout,"-")
-    for j in 1:m-1
-        print(fout,"--")
-    end
-    println(fout,"--")
-    for i in 1:n
-        print(fout,"|")
-        for j in 1:m-1
-            if t[i,j]!=0
-                print(fout,t[i,j])
-            else
-                print(fout," ")
-            end
-            if x[i,j]!=x[i,j+1]
-                print(fout,"|")
-            else
-                print(fout," ")
-            end
-        end
-        if t[i,m]!=0
-            print(fout,t[i,m])
-        else
-            print(fout," ")
-        end
-        println(fout,"|")
-        if i!=n
-            print(fout,"|")
-            for j in 1:m-1
-                if x[i,j]!=x[i+1,j] 
-                    print(fout,"-")
-                else
-                    print(fout," ")
-                end
-                if  x[i,j]!=x[i,j+1]
-                    print(fout,"|")
-                else
-                    print(fout," ")
-                end
-            end
-            if  x[i,m]!=x[i+1,m]
-                print(fout,"-")
-            else
-                print(fout," ")
-            end
-            println(fout,"|")
-        end
-    end
+    print(fout,"[")
     for j in 1:m
-        print(fout,"--")
+        print(fout,x[n,j], " ")
     end
-    println(fout,"-")
+    println(fout,"]")
+    println(fout,"]")
 end

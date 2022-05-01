@@ -1,0 +1,312 @@
+\documentclass{article}
+
+\usepackage[french]{babel}
+\usepackage [utf8] {inputenc} % utf-8 / latin1 
+\usepackage{multicol}
+
+\setlength{\hoffset}{-18pt}
+\setlength{\oddsidemargin}{0pt} % Marge gauche sur pages impaires
+\setlength{\evensidemargin}{9pt} % Marge gauche sur pages paires
+\setlength{\marginparwidth}{54pt} % Largeur de note dans la marge
+\setlength{\textwidth}{481pt} % Largeur de la zone de texte (17cm)
+\setlength{\voffset}{-18pt} % Bon pour DOS
+\setlength{\marginparsep}{7pt} % Séparation de la marge
+\setlength{\topmargin}{0pt} % Pas de marge en haut
+\setlength{\headheight}{13pt} % Haut de page
+\setlength{\headsep}{10pt} % Entre le haut de page et le texte
+\setlength{\footskip}{27pt} % Bas de page + séparation
+\setlength{\textheight}{668pt} % Hauteur de la zone de texte (25cm)
+
+\begin{document}
+\begin{center}
+\renewcommand{\arraystretch}{1.4} 
+ \begin{tabular}{lrrrr}
+	\hline
+ & \multicolumn{2}{c}{\textbf{cplex}} & \multicolumn{2}{c}{\textbf{heuristic}}\\
+\textbf{Instance}  & \textbf{Temps (s)} & \textbf{Optimal ?}  & \textbf{Temps (s)} & \textbf{Optimal ?} \\\hline
+
+instance\_exemple.txt & 49.44 & 
+$\times$
+ & 100.0 & 
+$\times$
+\\
+instance\_x4\_y4\_1.txt & 2.46 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x4\_y4\_2.txt & 2.36 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x4\_y4\_3.txt & 7.28 & 
+$\times$
+ & 100.61 & 
+\\
+instance\_x4\_y4\_4.txt & 2.52 & 
+$\times$
+ & 100.04 & 
+\\
+instance\_x4\_y4\_5.txt & 4.47 & 
+$\times$
+ & 100.07 & 
+\\
+instance\_x4\_y4\_6.txt & 5.12 & 
+$\times$
+ & 100.08 & 
+\\
+instance\_x5\_y4\_1.txt & 15.32 & 
+$\times$
+ & 100.1 & 
+\\
+instance\_x5\_y4\_2.txt & 17.95 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_3.txt & 19.9 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_4.txt & 12.07 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_5.txt & 14.91 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_6.txt & 14.37 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_1.txt & 30.22 & 
+$\times$
+ & 104.15 & 
+\\
+instance\_x5\_y5\_2.txt & 62.82 & 
+$\times$
+ & 116.12 & 
+\\
+instance\_x5\_y5\_3.txt & 49.55 & 
+$\times$
+ & 139.05 & 
+\\
+instance\_x5\_y5\_4.txt & 38.52 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_5.txt & 72.67 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_6.txt & 74.05 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y4\_1.txt & 35.22 & 
+$\times$
+ & 100.68 & 
+\\
+instance\_x6\_y4\_2.txt & 43.23 & 
+$\times$
+ & 100.27 & 
+\\
+instance\_x6\_y4\_3.txt & 51.6 & 
+$\times$
+ & 100.05 & 
+\\
+instance\_x6\_y4\_4.txt & 46.81 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y4\_5.txt & 78.12 & 
+$\times$
+ & 100.07 & 
+\\
+instance\_x6\_y4\_6.txt & 46.82 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_1.txt & 517.62 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_2.txt & 82.48 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_3.txt & 204.85 & 
+$\times$
+ & 100.91 & 
+\\
+instance\_x6\_y5\_4.txt & 183.97 & 
+$\times$
+ & 396.87 & 
+\\
+\hline\end{tabular}
+\end{center}
+
+\newpage
+\begin{center}
+\renewcommand{\arraystretch}{1.4} 
+ \begin{tabular}{lrrrr}
+	\hline
+ & \multicolumn{2}{c}{\textbf{cplex}} & \multicolumn{2}{c}{\textbf{heuristic}}\\
+\textbf{Instance}  & \textbf{Temps (s)} & \textbf{Optimal ?}  & \textbf{Temps (s)} & \textbf{Optimal ?} \\\hline
+
+instance\_x6\_y5\_5.txt & 249.44 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_6.txt & 177.9 & 
+$\times$
+ & 101.61 & 
+\\
+instance\_x6\_y6.txt & 1747.62 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_exemple.txt & 49.44 & 
+$\times$
+ & 100.0 & 
+$\times$
+\\
+instance\_x4\_y4\_1.txt & 2.46 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x4\_y4\_2.txt & 2.36 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x4\_y4\_3.txt & 7.28 & 
+$\times$
+ & 100.61 & 
+\\
+instance\_x4\_y4\_4.txt & 2.52 & 
+$\times$
+ & 100.04 & 
+\\
+instance\_x4\_y4\_5.txt & 4.47 & 
+$\times$
+ & 100.07 & 
+\\
+instance\_x4\_y4\_6.txt & 5.12 & 
+$\times$
+ & 100.08 & 
+\\
+instance\_x5\_y4\_1.txt & 15.32 & 
+$\times$
+ & 100.1 & 
+\\
+instance\_x5\_y4\_2.txt & 17.95 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_3.txt & 19.9 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_4.txt & 12.07 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_5.txt & 14.91 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y4\_6.txt & 14.37 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_1.txt & 30.22 & 
+$\times$
+ & 104.15 & 
+\\
+instance\_x5\_y5\_2.txt & 62.82 & 
+$\times$
+ & 116.12 & 
+\\
+instance\_x5\_y5\_3.txt & 49.55 & 
+$\times$
+ & 139.05 & 
+\\
+instance\_x5\_y5\_4.txt & 38.52 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_5.txt & 72.67 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x5\_y5\_6.txt & 74.05 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y4\_1.txt & 35.22 & 
+$\times$
+ & 100.68 & 
+\\
+instance\_x6\_y4\_2.txt & 43.23 & 
+$\times$
+ & 100.27 & 
+\\
+instance\_x6\_y4\_3.txt & 51.6 & 
+$\times$
+ & 100.05 & 
+\\
+instance\_x6\_y4\_4.txt & 46.81 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y4\_5.txt & 78.12 & 
+$\times$
+ & 100.07 & 
+\\
+instance\_x6\_y4\_6.txt & 46.82 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_1.txt & 517.62 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_2.txt & 82.48 & 
+$\times$
+ & 100.0 & 
+\\
+\hline\end{tabular}
+\end{center}
+
+\newpage
+\begin{center}
+\renewcommand{\arraystretch}{1.4} 
+ \begin{tabular}{lrrrr}
+	\hline
+ & \multicolumn{2}{c}{\textbf{cplex}} & \multicolumn{2}{c}{\textbf{heuristic}}\\
+\textbf{Instance}  & \textbf{Temps (s)} & \textbf{Optimal ?}  & \textbf{Temps (s)} & \textbf{Optimal ?} \\\hline
+
+instance\_x6\_y5\_3.txt & 204.85 & 
+$\times$
+ & 100.91 & 
+\\
+instance\_x6\_y5\_4.txt & 183.97 & 
+$\times$
+ & 396.87 & 
+\\
+instance\_x6\_y5\_5.txt & 249.44 & 
+$\times$
+ & 100.0 & 
+\\
+instance\_x6\_y5\_6.txt & 177.9 & 
+$\times$
+ & 101.61 & 
+\\
+instance\_x6\_y6.txt & 1747.62 & 
+$\times$
+ & 100.0 & 
+\\
+\hline\end{tabular}
+\end{center}
+
+
+\end{document}
