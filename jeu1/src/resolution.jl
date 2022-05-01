@@ -183,34 +183,38 @@ function solveDataSet()
                     if isOptimal
                         n = size(t,1)
                         m = size(t,2)
-                        print(fout,"-")
-                        for i in 1:m
-                            print(fout,"-")
-                        end
-                        println(fout,"-")
+                        println(fout, "t = [")
+                        #print(fout,string("-"))
+                        #for i in 1:m
+                        #    print(fout,string("-"))
+                        #end
+                        #println(fout,string("-"))
                         for i in 1:n
-                            print(fout,"|")
+                            #print(fout,string("|"))
+                            print(fout,"[ ")
                             for j in 1:m
                                 if t[i,j] == 1
-                                    print(fout,"A")
+                                    print(fout,string(1)*" ")
                                 elseif JuMP.value(x[i,j]) > TOL
-                                    print(fout,"T")
+                                    print(fout,string(2)*" ")
                                 else
-                                    print(fout," ")
+                                    print(fout,string(0)*" ")
                                 end
                             end
-                            print(fout,"|")
-                            println(fout,k[i])
+                            #print(fout,string("|"))
+                            println(fout,string(k[i])*"];")
                         end
-                        print(fout,"-")
+                        #print(fout,string("-"))
+                        #for i in 1:m
+                        #    print(fout,string("-"))
+                        #end
+                        #println(fout,string("-"))
+                        print(fout,"[ ")
                         for i in 1:m
-                            print(fout,"-")
+                            print(fout,string(y[i])*" ")
                         end
-                        println(fout,"-")
-                        print(fout," ")
-                        for i in 1:m
-                            print(fout,y[i])
-                        end
+                        println(fout," "*string(0)*"]")
+                        println(fout,"]")
                     end
                 end
                 println(fout," ")
