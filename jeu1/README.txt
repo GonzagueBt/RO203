@@ -3,12 +3,12 @@ Pour utiliser ce programme, se placer dans le répertoire ./src
 Utilisations basiques : 
 I - Résolution et affichage de l'instance exemple :
 julia
-include("io.jl")
+include("resolution.jl")
 Tents()
 
 II - Résolution et affichage d'une instance existante
 julia
-include("io.jl")
+include("resolution.jl")
 Tents("pathInstance")
 
 ---------------------------------------------------------------------------

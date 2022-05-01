@@ -6,6 +6,23 @@ include("heuristic.jl")
 
 TOL = 0.00001
 
+function Palisade(inputFile::String="", method::String="")
+    include("resolution.jl")
+    include("heuristic.jl")
+    if inputFile==""
+        inputFile="../data/instance_exemple.txt"
+    end
+    sizeR, t = readInputFile(inputFile)
+    if method=="" || method=="S"
+        Opt, time, x = cplexSolve(sizeR, t)
+    elseif method=="H"
+        time, x = heuristicSolve(sizeR, t)
+    end
+    displayGrid(t)
+    displaySolution(t,x)
+    println("solveTime = ", time)
+end
+
 """
 Solve an instance with CPLEX
 """

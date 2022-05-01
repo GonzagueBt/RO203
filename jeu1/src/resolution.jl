@@ -8,7 +8,7 @@ TOL = 0.00001
 
 function Tents(inputFile::String="")
     if inputFile==""
-        inputFile="../data/instance_test_taille.txt"
+        inputFile="../data/instance_exemple.txt"
     end
     t,y,k,a = readInputFile(inputFile)
     status, time, x = cplexSolve(y,k,a)

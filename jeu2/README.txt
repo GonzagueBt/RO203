@@ -3,17 +3,17 @@ Pour utiliser ce programme, se placer dans le répertoire ./src
 Utilisations basiques : 
 I - Résolution avec le solver et affichage de l'instance exemple :
 julia
-include("io.jl")
+include("resolution.jl")
 Palisade()
 
 II - Résolution avec l'heuristique et affichage de l'instance exemple :
 julia
-include("io.jl")
+include("resolution.jl")
 Palisade("","H")
 
 II - Résolution avec le solver et affichage d'une instance existante
 julia
-include("io.jl")
+include("resolution.jl")
 Palisade("pathInstance")
 
 ---------------------------------------------------------------------------
