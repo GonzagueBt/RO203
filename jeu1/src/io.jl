@@ -189,7 +189,7 @@ Prerequisites:
 """
 function performanceDiagram(outputFile::String)
 
-    resultFolder = "RO203/jeu1//res/"
+    resultFolder = "../res/"
     
     # Maximal number of files in a subfolder
     maxSize = 0

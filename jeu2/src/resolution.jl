@@ -240,7 +240,8 @@ Write a solution in an output stream
 
 Arguments
 - fout: the output stream (usually an output file)
-- t: 2-dimensional array of size n*n
+- t: 2-dimensional array of size n*m
+- x: 2-dimensional array of size n*m
 """
 function writeSolution(fout::IOStream,t::Array{},x::Array{})
     n = size(t,1)
